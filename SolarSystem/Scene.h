@@ -55,6 +55,7 @@ public:
 		for (IRandable* obj : meshes)
 		{
 			obj->setCameraPos(camera.position);
+			obj->update();
 		}
 
 		glutPostRedisplay();
@@ -72,15 +73,8 @@ public:
 	{
 		for (IRandable* obj : meshes)
 		{
-			//obj->setCameraPos(camera.position);
-
 			renderer->draw(obj);
 		}
-	}
-
-	void updateObjs()
-	{
-		
 	}
 
 	void reshape(int w, int h) { renderer->reshape(w, h); }

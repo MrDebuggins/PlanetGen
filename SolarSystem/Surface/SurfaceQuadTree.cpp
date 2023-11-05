@@ -80,3 +80,208 @@ SurfaceQuadNode* SurfaceQuadNode::getNeareastNeighbour(SurfaceQuadNode* neighbou
 
 	return nearest;
 }
+
+void SurfaceQuadNode::setNeighbours()
+{
+	switch (type)
+	{
+	case QUAD_CHILD::TOP_LEFT:
+		if (parent->neighbourLeft != NULL)
+		{
+			if (parent->neighbourLeft->plane != plane)
+			{
+				neighbourLeft = getNeareastNeighbour(parent->neighbourLeft, parent->corners.p0.get());
+			}
+			else
+			{
+				neighbourLeft = parent->neighbourLeft->topRight;
+			}
+		}
+
+		if (parent->neighbourTop != NULL)
+		{
+			if(parent->neighbourTop->plane != plane)
+			{
+				neighbourTop = getNeareastNeighbour(parent->neighbourTop, parent->corners.p0.get());
+			}
+			else
+			{
+				neighbourTop = parent->neighbourTop->botLeft;
+			}
+		}
+		break;
+	case QUAD_CHILD::BOT_LEFT:
+		if (parent->neighbourLeft != NULL)
+		{
+			if (parent->neighbourLeft->plane != plane)
+			{
+				neighbourLeft = getNeareastNeighbour(parent->neighbourLeft, parent->corners.p1.get());
+			}
+			else
+			{
+				neighbourLeft = parent->neighbourLeft->botRight;
+			}
+		}
+
+		if (parent->neighbourBot != NULL)
+		{
+			if(parent->neighbourBot->plane != plane)
+			{
+				neighbourBot = getNeareastNeighbour(parent->neighbourBot, parent->corners.p1.get());
+			}
+			else
+			{
+				neighbourBot = parent->neighbourBot->topLeft;
+			}
+		}
+
+		neighbourTop = parent->topLeft;
+		parent->topLeft->neighbourBot = this;
+		break;
+	case QUAD_CHILD::TOP_RIGHT:
+		if (parent->neighbourTop != NULL)
+		{
+			if (parent->neighbourTop->plane != plane)
+			{
+				neighbourTop = getNeareastNeighbour(parent->neighbourTop, parent->corners.p2.get());
+			}
+			else
+			{
+				neighbourTop = parent->neighbourTop->botRight;
+			}
+		}
+
+		if(parent->neighbourRight != NULL)
+		{
+			if(parent->neighbourRight->plane != plane)
+			{
+				neighbourRight = getNeareastNeighbour(parent->neighbourRight, parent->corners.p2.get());
+			}
+			else
+			{
+				neighbourRight = parent->neighbourRight->topLeft;
+			}
+		}
+
+		neighbourLeft = parent->topLeft;
+		parent->topLeft->neighbourRight = this;
+		break;
+	case QUAD_CHILD::BOT_RIGHT:
+		if(parent->neighbourBot != NULL)
+		{
+			if(parent->neighbourBot->plane != plane)
+			{
+				neighbourBot = getNeareastNeighbour(parent->neighbourBot, parent->corners.p3.get());
+			}
+			else
+			{
+				neighbourBot = parent->neighbourBot->topRight;
+			}
+		}
+
+		if (parent->neighbourRight != NULL)
+		{
+			if (parent->neighbourRight->plane != plane)
+			{
+				neighbourRight = getNeareastNeighbour(parent->neighbourRight, parent->corners.p3.get());
+			}
+			else
+			{
+				neighbourRight = parent->neighbourRight->botLeft;
+			}
+		}
+
+		neighbourLeft = parent->botLeft;
+		parent->botLeft->neighbourRight = this;
+
+		neighbourTop = parent->topRight;
+		parent->topRight->neighbourBot = this;
+		break;
+	}
+}
+
+void SurfaceQuadNode::initVertices()
+{
+	float x, y, z;
+	
+	switch (type)
+	{
+	case QUAD_CHILD::TOP_LEFT:
+		corners.p0 = parent->corners.p0;
+
+		x = (parent->corners.p0->coords.x + parent->corners.p1->coords.x) / 2;
+		y = (parent->corners.p0->coords.y + parent->corners.p1->coords.y) / 2;
+		z = (parent->corners.p0->coords.z + parent->corners.p1->coords.z) / 2;
+		if(neighbourLeft != NULL)
+		{
+			corners.p1 = getNeededNeighbourPoint(neighbourLeft, Point(x, y, z, 0));
+		}
+		else
+		{
+			corners.p1 = std::shared_ptr<Point>(new Point(x, y, z, planet->vertexBufferIndex++));
+			planet->vertices.push_back(corners.p1->coords);
+		}
+
+		x = (parent->corners.p0->coords.x + parent->corners.p2->coords.x) / 2;
+		y = (parent->corners.p0->coords.y + parent->corners.p2->coords.y) / 2;
+		z = (parent->corners.p0->coords.z + parent->corners.p2->coords.z) / 2;
+		if(neighbourTop != NULL)
+		{
+			corners.p2 = getNeededNeighbourPoint(neighbourTop, Point(x, y, z, 0));
+		}
+		else
+		{
+			corners.p2 = std::shared_ptr<Point>(new Point(x, y, z, planet->vertexBufferIndex++));
+			planet->vertices.push_back(corners.p2->coords);
+		}
+
+		x = (parent->corners.p0->coords.x + parent->corners.p3->coords.x) / 2;
+		y = (parent->corners.p0->coords.y + parent->corners.p3->coords.y) / 2;
+		z = (parent->corners.p0->coords.z + parent->corners.p3->coords.z) / 2;
+		corners.p3 = std::shared_ptr<Point>(new Point(x, y, z, planet->vertexBufferIndex++));
+		planet->vertices.push_back(corners.p3->coords);
+		break;
+	case QUAD_CHILD::BOT_LEFT:
+		corners.p0 = parent->topLeft->corners.p1;
+		corners.p1 = parent->corners.p1;
+		corners.p2 = neighbourTop->corners.p3;
+
+		x = (parent->corners.p1->coords.x + parent->corners.p3->coords.x) / 2;
+		y = (parent->corners.p1->coords.y + parent->corners.p3->coords.y) / 2;
+		z = (parent->corners.p1->coords.z + parent->corners.p3->coords.z) / 2;
+		if(neighbourBot != NULL)
+		{
+			corners.p3 = getNeededNeighbourPoint(neighbourBot, Point(x, y, z, 0));
+		}
+		else
+		{
+			corners.p3 = std::shared_ptr<Point>(new Point(x, y, z, planet->vertexBufferIndex++));
+			planet->vertices.push_back(corners.p3->coords);
+		}
+		break;
+	case QUAD_CHILD::TOP_RIGHT:
+		corners.p0 = neighbourLeft->corners.p2;
+		corners.p1 = neighbourLeft->corners.p3;
+		corners.p2 = parent->corners.p2;
+
+		x = (parent->corners.p2->coords.x + parent->corners.p3->coords.x) / 2;
+		y = (parent->corners.p2->coords.y + parent->corners.p3->coords.y) / 2;
+		z = (parent->corners.p2->coords.z + parent->corners.p3->coords.z) / 2;
+		if (neighbourRight != NULL)
+		{
+			corners.p3 = getNeededNeighbourPoint(neighbourRight, Point(x, y, z, 0));
+		}
+		else
+		{
+			corners.p3 = std::shared_ptr<Point>(new Point(x, y, z, planet->vertexBufferIndex++));
+			planet->vertices.push_back(corners.p3->coords);
+		}
+		break;
+	case QUAD_CHILD::BOT_RIGHT:
+		corners.p0 = neighbourTop->corners.p1;
+		corners.p1 = neighbourLeft->corners.p3;
+		corners.p2 = neighbourTop->corners.p3;
+		corners.p3 = parent->corners.p3;
+		break;
+	}
+}

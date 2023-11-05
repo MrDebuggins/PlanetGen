@@ -18,6 +18,8 @@ protected:
 	glm::vec3 cameraPos;
 public:
 	//~IRandable() = default;
+
+	virtual void update() = 0;
 	
 	virtual Shader* getObjShader() = 0;
 
@@ -60,7 +62,7 @@ public:
 		return ebo;
 	}
 
-	glm::vec3 getPosition()
+	virtual glm::vec3 getPosition()
 	{
 		return position;
 	}

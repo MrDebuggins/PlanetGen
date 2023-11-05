@@ -9,9 +9,13 @@ public:
 
 	SurfaceQuadNodeXY(SurfaceQuadNode* parent, QUAD_CHILD type, float planeDirection, PlanetProperties* planet);
 
+	void updateTree() override;
+
 	void split();
 
-	void setNeighbours();
-
-	void initVertices();
+	glm::vec3 getCenterCoord()
+	{
+		return {(corners.p2->coords.x + corners.p0->coords.x) / 2, (corners.p0->coords.y + corners.p1->coords.y) / 2, corners.p0->coords.z
+		};
+	}
 };

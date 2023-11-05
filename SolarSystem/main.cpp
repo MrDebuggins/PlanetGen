@@ -41,8 +41,7 @@ int main(int argc, char** argv)
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
 	scene.initRenderer();
-	Planet* test = new Planet(6371000.0f);
-	test->buildSurfaceMesh();
+	Planet* test = new Planet(6371000.0f, glm::vec3(0, 0, 0));
 	scene.addObject(test);
 
 	glutDisplayFunc(display);

@@ -22,7 +22,8 @@ Renderer::Renderer(Camera* camera)
 	//glEnable(GL_DEPTH_BUFFER);
 
 	glewInit();
-	//glEnable(GL_CULL_FACE);
+
+	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
@@ -108,7 +109,11 @@ void Renderer::draw(IRandable* obj)
 	
 	glUseProgram(programme);
 
-	glBindVertexArray(obj->getVbo());
+	glBindVertexArray(obj->getVao());
+
+	glBindBuffer(GL_ARRAY_BUFFER, obj->getVbo());
+	glBufferData(GL_ARRAY_BUFFER, obj->getVertexArray()->size() * sizeof(glm::vec3), obj->getVertexArray()->data(), GL_STATIC_DRAW);
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, obj->getEbo());
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, obj->getPrimitivesArray()->size() * sizeof(unsigned int), obj->getPrimitivesArray()->data(), GL_STATIC_DRAW);
 

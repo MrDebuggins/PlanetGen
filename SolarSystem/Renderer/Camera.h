@@ -23,7 +23,7 @@ enum camera_movement {
 // Default camera values
 constexpr float yaw_c = -90.0f;
 constexpr float pitch_c = 0.0f;
-constexpr float speed_c = 10.0f;
+constexpr float speed_c = 100000.0f;
 constexpr float sensitivity_c = 0.1f;
 constexpr float zoom_c = 45.0f;
 
@@ -64,7 +64,7 @@ public:
      * \param yaw camera yaw
      * \param pitch camera pitch
      */
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
+    Camera(glm::vec3 position = glm::vec3(0.0f, 1.5f * 6371001.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
     {
         this->position = position;
         worldUp = up;
@@ -80,8 +80,8 @@ public:
     glm::mat4 getViewMatrix() const
     {
         glm::vec3 tmp = position + front;
-        //return glm::lookAt(glm::vec3(0, 0, 0), front, up);
-        return glm::lookAt(position, tmp, up);
+        return glm::lookAt(glm::vec3(0, 0, 0), front, up);
+        //return glm::lookAt(position, tmp, up);
     }
     
     /**

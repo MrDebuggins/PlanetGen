@@ -20,17 +20,19 @@ struct PlanetProperties
 	int* vertexArraySize;
 
 	float radius = 1.0f;
+	glm::vec3 position;
 
 	glm::vec3 cameraP;
 
 	PlanetProperties() = default;
 
-	PlanetProperties(const float radius)
+	PlanetProperties(const float radius, glm::vec3 pos)
 	{
 		this->radius = radius;
 		cameraP = glm::vec3(0, 0, 6371001);
 		maxDepth = log2(10 * PI * radius);
 		vertexArraySize = new int[maxDepth];
+		position = pos;
 	}
 
 	~PlanetProperties() 

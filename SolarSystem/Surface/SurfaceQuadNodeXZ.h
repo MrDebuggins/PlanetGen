@@ -9,9 +9,7 @@ public:
 
 	SurfaceQuadNodeXZ(SurfaceQuadNode* parent, QUAD_CHILD type, float planeDirection, PlanetProperties* planet);
 
+	void updateTree() override;
+
 	void split();
-
-	void setNeighbours();
-
-	void initVertices();
 };

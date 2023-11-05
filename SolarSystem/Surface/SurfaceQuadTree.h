@@ -12,7 +12,7 @@ struct Point
 	glm::vec3 coords;
 	unsigned int index;
 
-	Point(float x, float y, float z, unsigned int index)
+	Point(const float x, const float y, const float z, const unsigned int index)
 	{
 		coords = glm::vec3(x, y, z);
 		this->index = index;
@@ -27,6 +27,21 @@ struct Point
 
 		return false;
 	}
+
+	static float calcDistance(const float x1, const float y1, const float z1, const float x2, const float y2, const float z2)
+	{
+		return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2));
+	}
+
+	static float distance(const glm::vec3 a, const glm::vec3 b)
+	{
+		return calcDistance(a.x, a.y, a.z, b.x, b.y, b.z);
+	}
+
+	static float distance(const glm::vec3 a, const float x, const float y, const float z)
+	{
+		return calcDistance(a.x, a.y, a.z, x, y, z);
+	}
 };
 
 struct QuadData
@@ -38,10 +53,10 @@ struct QuadData
 
 	~QuadData()
 	{
-		p0.~shared_ptr();
+		/*p0.~shared_ptr();
 		p1.~shared_ptr();
 		p2.~shared_ptr();
-		p3.~shared_ptr();
+		p3.~shared_ptr();*/
 	}
 };
 
@@ -68,6 +83,7 @@ public:
 
 	QUAD_CHILD type;
 	QuadData corners;
+	glm::vec3 center;
 
 	SurfaceQuadNode* parent;
 
@@ -103,15 +119,17 @@ public:
 
 	virtual void split() = 0;
 
-	virtual void setNeighbours() = 0;
-
-	virtual void initVertices() = 0;
+	virtual void updateTree() = 0;
 
 	std::shared_ptr<Point> getNeededNeighbourPoint(SurfaceQuadNode* neighbour, Point p);
 
 	double getDistanceBetweenNodeAndPoint(SurfaceQuadNode* a, Point* c2);
 
 	SurfaceQuadNode* getNeareastNeighbour(SurfaceQuadNode* neighboursParent, Point* current);
+
+	void setNeighbours();
+
+	void initVertices();
 
 	void pushElemntIndexes();
 };

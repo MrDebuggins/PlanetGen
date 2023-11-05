@@ -69,10 +69,10 @@ void main()
 
 	vec3 npos = vPos;
 	
-	float k = (6371000.0 + 100 * perlin(npos.x, npos.y)) / sqrt(npos.x * npos.x + npos.y * npos.y + npos.z * npos.z);
+	float k = (6371000.0 + 0 * perlin(npos.x, npos.y)) / sqrt(npos.x * npos.x + npos.y * npos.y + npos.z * npos.z);
+	//k = 1;
 	npos = vec3(k*npos.x, k*npos.y, k*npos.z);
-	//npos -= cameraPos;
-	npos = (rot * vec4(npos, 1.0)).xyz;
+	npos -= cameraPos;
 	gl_Position = modelViewProjectionMatrix * vec4(npos, 1.0);
 
 	//logarithmic scale depth buffer
@@ -82,5 +82,5 @@ void main()
 	gl_Position.z = 2.0*log(gl_Position.w*1 + 1)/log(10000000000.0*1 + 1) - 1;
 	gl_Position.z *= gl_Position.w;
 
-	//pos = npos;
+	pos = npos;
 }
