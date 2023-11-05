@@ -1,6 +1,9 @@
 #pragma once
 
 //#include <glad/glad.h>
+#include <chrono>
+#include <ctime>
+#include <iostream>
 #include <GL/freeglut_std.h>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -23,7 +26,7 @@ enum camera_movement {
 // Default camera values
 constexpr float yaw_c = -90.0f;
 constexpr float pitch_c = 0.0f;
-constexpr float speed_c = 100000.0f;
+constexpr float speed_c = 10000.0f;
 constexpr float sensitivity_c = 0.1f;
 constexpr float zoom_c = 45.0f;
 
@@ -34,6 +37,9 @@ constexpr float zoom_c = 45.0f;
 class Camera
 {
 public:
+    // camera timer
+    time_t timer;
+
     // camera Attributes
     glm::vec3 position;
     glm::vec3 front;
@@ -54,6 +60,11 @@ public:
     float cursorX = 350;
     float cursorY = 200;
 
+    // camera buttons states ( w a s d r f)
+    bool buttons[6]{ false,false,false,false,false,false };
+
+    std::chrono::high_resolution_clock::time_point lastUpdateTime;
+
     int w = 700;
     int h = 400;
     
@@ -64,12 +75,13 @@ public:
      * \param yaw camera yaw
      * \param pitch camera pitch
      */
-    Camera(glm::vec3 position = glm::vec3(0.0f, 1.5f * 6371001.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
+    Camera(glm::vec3 position = glm::vec3(0.0f, 1.0f * 6371001.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
     {
         this->position = position;
         worldUp = up;
         this->yawE = yaw;
         this->pitchE = pitch;
+        lastUpdateTime = std::chrono::high_resolution_clock::now();
         updateCameraVectors();
     }
 
@@ -89,31 +101,52 @@ public:
      * Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
      * \param direction key pressed (w,a,s,d keys correspond to camera_movement enum members)
      * \param delta_time time camera has been moving
+     * \param state true if button pressed, false otherwise
      */
-    void processKeyboard(const camera_movement direction, const float delta_time)
+    void processKeyboard(const camera_movement direction, const float delta_time, bool state)
     {
-	    const float velocity = movementSpeed * delta_time;
         if (direction == FORWARD)
-            position += front * velocity;
+            buttons[0] = state;
         if (direction == BACKWARD)
-            position -= front * velocity;
+            buttons[1] = state;
         if (direction == LEFT)
-            position -= right * velocity;
+            buttons[2] = state;
         if (direction == RIGHT)
-            position += right * velocity;
+            buttons[3] = state;
         if (direction == UP)
-            position += up * velocity;
+            buttons[4] = state;
         if (direction == DOWN)
+            buttons[5] = state;
+    }
+
+    void update()
+    {
+        std::chrono::high_resolution_clock::time_point tmp = std::chrono::high_resolution_clock::now();
+        //std::cout << tmp - lastUpdateTime << std::endl;
+        const float velocity = movementSpeed * std::chrono::duration_cast<std::chrono::duration<double>>(tmp - lastUpdateTime).count();
+        lastUpdateTime = tmp;
+
+        if(buttons[0])
+            position += front * velocity;
+        if (buttons[1])
+            position -= front * velocity;
+        if (buttons[2])
+            position -= right * velocity;
+        if (buttons[3])
+            position += right * velocity;
+        if (buttons[4])
+            position += up * velocity;
+        if (buttons[5])
             position -= up * velocity;
     }
-    
+
     /**
      * \brief Processes input received from a mouse input system. Expects the offset value in both the x and y direction
      * \param x offset on x axis 
      * \param y offset on y axis
      * \param constrain_pitch constraint movement on y axis
      */
-    void processMouseMovement(float x, float y, const GLboolean constrain_pitch = true)
+    void processMouseMovement(float x, float y, const GLboolean constrain_pitch = false)
     {
         x -= static_cast<float>(w) / 2.0f;
         y -= static_cast<float>(h) / 2.0f;

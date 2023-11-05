@@ -47,27 +47,31 @@ public:
 		renderer->registerObject(obj);
 	}
 
-	void processKeyboard(unsigned char key, int x, int y)
+	void processKeyboard(unsigned char key, int x, int y, bool state)
 	{
 		// update camera
-		camera.processKeyboard(static_cast<camera_movement>(key), 0.3f);
+		camera.processKeyboard(static_cast<camera_movement>(key), 0.3f, state);
+	}
 
+	void processMouseMovement(const int x, const int y)
+	{
+		camera.processMouseMovement(x, y, false);
+	}
+
+	void processMouseWheel(){}
+
+	void update()
+	{
+		// update camera
+		renderer->camera->update();
+
+		//update objects
 		for (IRandable* obj : meshes)
 		{
 			obj->setCameraPos(camera.position);
 			obj->update();
 		}
-
-		glutPostRedisplay();
 	}
-
-	void processMouseMovement(const int x, const int y)
-	{
-		camera.processMouseMovement(x, y, true);
-		glutPostRedisplay();
-	}
-
-	void processMouseWheel(){}
 
 	void draw()
 	{
