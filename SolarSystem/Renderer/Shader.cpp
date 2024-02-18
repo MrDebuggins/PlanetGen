@@ -48,63 +48,75 @@ std::string textFileRead(const char* fn)
 	return fileText;
 }
 
-Shader::Shader()
+GLuint Shader::compileShader(const GLuint type, const std::string& file)
 {
-	vsFile = "default_vertex.vert";
-	fsFile = "default_fragment.frag";
-}
+	const std::string text = textFileRead(file.c_str());
+	const char* shader = text.c_str();
 
-Shader::Shader(const std::string& vs_file, const std::string& fs_file)
-{
-	this->vsFile = vs_file;
-	this->fsFile = fs_file;
-
-	createShaderProgramme();
-}
-
-int Shader::createShaderProgramme()
-{
-	// read shaders code from files
-	const std::string vs_text = textFileRead(vsFile.c_str());
-	const std::string fs_text = textFileRead(fsFile.c_str());
-	const char* vertex_shader = vs_text.c_str();
-	const char* fragment_shader = fs_text.c_str();
-
-	// create and compile vertex shader
-	vert = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vert, 1, &vertex_shader, nullptr);
-	glCompileShader(vert);
+	GLuint identifier = glCreateShader(type);
+	glShaderSource(identifier, 1, &shader, nullptr);
+	glCompileShader(identifier);
 
 	// check for shader compile errors
 	int success;
 	char infoLog[512];
-	glGetShaderiv(vert, GL_COMPILE_STATUS, &success);
+	glGetShaderiv(identifier, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
-		glGetShaderInfoLog(vert, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		glGetShaderInfoLog(identifier, 512, nullptr, infoLog);
+		std::cout << "ERROR::" << type << "::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
-	// create and compile fragment shader
-	frag = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(frag, 1, &fragment_shader, nullptr);
-	glCompileShader(frag);
-
-	// check for shader compile errors
-	glGetShaderiv(frag, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(frag, 512, nullptr, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	shaderProgramme = glCreateProgram();
-
-	// print compile logs
-	printShaderInfoLog(frag);
-	printShaderInfoLog(vert);
-	printProgramInfoLog(shaderProgramme);
-
-	return success;
+	return identifier;
 }
 
+GLuint Shader::createShaderProgram(const std::string& vs_file, const std::string& fs_file, const std::string& tcs_file, const std::string& tes_file, const std::string& gs_file)
+{
+	GLuint program = glCreateProgram();
+
+	// compile shaders and attach them to program
+	GLuint vs = compileShader(GL_VERTEX_SHADER, vs_file);
+	glAttachShader(program, vs);
+
+	GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_file);
+	glAttachShader(program, fs);
+
+	GLuint tcs = 0;
+	if (!tcs_file.empty())
+	{
+		tcs = compileShader(GL_TESS_CONTROL_SHADER, tcs_file);
+		glAttachShader(program, tcs);
+	}
+
+	GLuint tes = 0;
+	if (!tes_file.empty())
+	{
+		tes = compileShader(GL_TESS_EVALUATION_SHADER, tes_file);
+		glAttachShader(program, tes);
+	}
+
+	GLuint gs = 0;
+	if (!gs_file.empty())
+	{
+		gs = compileShader(GL_GEOMETRY_SHADER, gs_file);
+		glAttachShader(program, gs);
+	}
+
+	// link program
+	glLinkProgram(program);
+
+	// delete shaders
+	glDeleteShader(vs);
+	glDeleteShader(fs);
+
+	if(tcs != 0)
+		glDeleteShader(tcs);
+
+	if (tes != 0)
+		glDeleteShader(tes);
+
+	if (gs != 0)
+		glDeleteShader(gs);
+
+	return program;
+}

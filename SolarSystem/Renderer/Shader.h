@@ -5,44 +5,25 @@
 
 
 /**
- * \brief Class for managing a single set of vertex and fragment shaders
+ * \brief Class for managing a shader
  */
 class Shader
 {
-	std::string vsFile;					//Path to vertex shader file
-	std::string fsFile;					//Path to fragment shader file
-
-	GLuint shaderProgramme = 0;			//opengl shader programme
-	GLuint vert = 0;						//opengl vertex shader
-	GLuint frag = 0;						//opengl fragment shader
-
 public:
 	/**
-	 * Constructor with default shaders
+	 * \brief Compiles the shader
+	 * \return shader identifier
 	 */
-	Shader();
+	static GLuint compileShader(const GLuint type, const std::string& file);
 
 	/**
-	 * \brief Constructor with custom shaders
-	 * \param vs_file Path to vertex shader file
-	 * \param fs_file Path to fragment shader file
+	 * \brief Create a shader program using provided shader files
+	 * \param vs_file vertex shader file path
+	 * \param fs_file fragment shader file path
+	 * \param tcs_file tessellation control shader file path
+	 * \param tes_file tessellation evaluation shader file path
+	 * \param gs_file geometry shader file path
+	 * \return shader program identifier
 	 */
-	Shader(const std::string& vs_file, const std::string& fs_file);
-
-	~Shader()
-	{
-		glDeleteProgram(shaderProgramme);
-	}
-
-	/**
-	 * \brief Creates shaders and shader programme used for rendering
-	 * \return 0 - successful, non 0 - error
-	 */
-	int createShaderProgramme();
-
-	GLuint getShaderProgramme() const { return shaderProgramme; }
-
-	GLuint getVertexShader() const { return vert; }
-
-	GLuint getFragmentShader() const { return frag; }
+	static GLuint createShaderProgram(const std::string& vs_file, const std::string& fs_file, const std::string& tcs_file = "", const std::string& tes_file = "", const std::string& gs_file = "");
 };

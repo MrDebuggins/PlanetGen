@@ -1,11 +1,11 @@
 #pragma once
 
-#include "IRandable.h"
+#include <string>
+
 #include "Camera.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/constants.hpp>
-
 
 
 /**
@@ -27,42 +27,77 @@ constexpr float d_height = 400;
 class Renderer
 {
 	// window parameters
-	float windowW = d_width;
-	float windowH = d_height;
+	static float windowW;
+	static float windowH;
 
-
-	float tmp = 0.0f;
-
-	// default rendering shader
-	Shader defaultShader = Shader();
+	// default shader program
+	static GLuint defaultShaderProgram;
 
 	// rendering matrices
-	glm::mat4 projectionMatrix = glm::perspective(PI / 4, windowW / windowH, 0.1f, 10000000000.0f);
-	glm::mat4 viewMatrix;
-	glm::mat4 modelMatrix;
+	static glm::mat4 projectionMatrix;
 
 	// light source position
-	glm::vec3 lightPos;
+	static glm::vec3 lightPos;
 
-	GLuint vaoObj;								// vertex array object (data descriptor)
-	GLuint vboObj;								// vertex buffer object (vertex data)
-	GLuint eboObj;								// element buffer object (primitives data)
+	// camera used for rendering
+	static Camera* camera;
 
 public:
-	Camera* camera;
+	~Renderer()
+	{
+		camera = nullptr;
+	}
 
 	/**
 	 * \brief Initializes all common parameters and settings
 	 */
-	Renderer(Camera* camera);
+	static void init(Camera* camera);
 
-	void attachShader(GLuint programme, GLuint vs, GLuint fs);
+	/**
+	 * \brief Create a shader program using provided shader files
+	 * \param vs_file vertex shader file path
+	 * \param fs_file fragment shader file path
+	 * \param tcs_file tessellation control shader file path
+	 * \param tes_file tessellation evaluation shader file path
+	 * \param gs_file geometry shader file path
+	 * \return shader program identifier
+	 */
+	static GLuint createShaderProgram(const std::string& vs_file, const std::string& fs_file, const std::string& tcs_file = "", const std::string& tes_file = "", const std::string& gs_file = "");
 
-	void registerObject(IRandable* obj);
+	/**
+	 * \brief Get default shader program, made from vertex and fragment shaders only.
+	 * \return shader program
+	 */
+	static GLuint getDefaultShaderProgram();
 
-	void setLightPos(glm::vec3 light_pos);
+	/**
+	 * \brief Set scene light source position (only one for now).
+	 * \param light_pos light source position
+	 */
+	static void setLightPos(glm::vec3 light_pos);
 
-	void draw(IRandable* obj);
+	/**
+	 * \brief Callback for changing window size
+	 * \param w width
+	 * \param h height
+	 */
+	static void reshape(int w, int h);
 
-	void reshape(int w, int h);
+	/**
+	 * \brief Set shader program to be used for draw calls
+	 * \param shaderProgram shader program identifier
+	 */
+	static void useShaderProgram(GLuint shaderProgram);
+
+	/**
+	 * \brief Get used camera's view matrix
+	 * \return view matrix
+	 */
+	static glm::mat4x4 getViewMatrix();
+
+	/**
+	 * \brief Get current projection matrix
+	 * \return projection matrix
+	 */
+	static glm::mat4x4 getProjectionMatrix();
 };

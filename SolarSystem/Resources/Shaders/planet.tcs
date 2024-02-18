@@ -1,0 +1,58 @@
+#version 430
+
+layout (vertices=4) out;
+
+
+uniform vec3 cameraPos;
+uniform float radius;
+
+out vec2 uvsCoord[];
+
+void main()
+{
+    float r = radius;
+
+    // ----------------------------------------------------------------------
+    // pass attributes through
+    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+
+    // ----------------------------------------------------------------------
+    // invocation zero controls tessellation levels for the entire patch
+    if (gl_InvocationID == 0)
+    {
+        // 
+        vec3 p0 = normalize(gl_in[0].gl_Position.xyz) * r;
+        vec3 p1 = normalize(gl_in[1].gl_Position.xyz) * r;
+        vec3 p2 = normalize(gl_in[2].gl_Position.xyz) * r;
+        vec3 p3 = normalize(gl_in[3].gl_Position.xyz) * r;
+
+        // calculate width of the patch
+        float width = distance(p0, p1);
+
+        // calculate center point of patch
+        float cx = (p0.x + p1.x + p2.x + p3.x) / 4;
+        float cy = (p0.y + p1.y + p2.y + p3.y) / 4;
+        float cz = (p0.z + p1.z + p2.z + p3.z) / 4;
+
+        // get dsitance to camera
+        float d = distance(cameraPos, normalize(vec3(cx, cy, cz)) * r);
+
+        // rezolution coeficient
+        float C = 30.0;
+
+        uint tessLevel = uint(round(width / d * C));
+
+        if(tessLevel < 4)
+            tessLevel = 4;
+        tessLevel = 64;
+
+        gl_TessLevelOuter[0] = 64;
+        gl_TessLevelOuter[1] = 64;
+        gl_TessLevelOuter[2] = 64;
+        gl_TessLevelOuter[3] = 64;
+
+        gl_TessLevelInner[0] = tessLevel;
+        gl_TessLevelInner[1] = tessLevel;
+
+    }
+}

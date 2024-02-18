@@ -7,42 +7,22 @@
     <Filter Include="Renderer">
       <UniqueIdentifier>{c579fec2-0c48-4d91-80fa-c17243d7cb1f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Planet">
-      <UniqueIdentifier>{e15ff10b-73fd-4948-b535-a47763df5c13}</UniqueIdentifier>
+    <Filter Include="Perlinnnn">
+      <UniqueIdentifier>{7566caea-7ff1-47ac-a6bc-8bce3d5b49a9}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Surface\surface.frag">
-      <Filter>Planet</Filter>
-    </None>
-    <None Include="Surface\surface.vert">
-      <Filter>Planet</Filter>
-    </None>
-    <None Include="Renderer\default_fragment.frag">
-      <Filter>Renderer</Filter>
-    </None>
-    <None Include="Renderer\default_vertex.vert">
-      <Filter>Renderer</Filter>
-    </None>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{a0c8d410-6d88-4845-8d74-13d69c758b65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Shaders">
+      <UniqueIdentifier>{9cce17f0-3052-4cd9-9736-d5e8fe79a3d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Planet">
+      <UniqueIdentifier>{aceed0f3-ec9b-46ca-98e5-e13854bbc34e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="Surface\Planet.cpp">
-      <Filter>Planet</Filter>
-    </ClCompile>
-    <ClCompile Include="Surface\SurfaceQuadTree.cpp">
-      <Filter>Planet</Filter>
-    </ClCompile>
-    <ClCompile Include="Surface\SurfaceQuadNodeXZ.cpp">
-      <Filter>Planet</Filter>
-    </ClCompile>
-    <ClCompile Include="Surface\SurfaceQuadNodeXY.cpp">
-      <Filter>Planet</Filter>
-    </ClCompile>
-    <ClCompile Include="Surface\SurfaceQuadNodeZY.cpp">
-      <Filter>Planet</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Renderer.cpp">
       <Filter>Renderer</Filter>
@@ -50,30 +30,21 @@
     <ClCompile Include="Renderer\Shader.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Planet\Planet.cpp">
+      <Filter>Planet</Filter>
+    </ClCompile>
+    <ClCompile Include="Planet\SurfaceQuadTree.cpp">
+      <Filter>Planet</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Surface\Planet.h">
-      <Filter>Planet</Filter>
-    </ClInclude>
-    <ClInclude Include="Surface\SurfaceQuadTree.h">
-      <Filter>Planet</Filter>
-    </ClInclude>
-    <ClInclude Include="Surface\SurfaceQuadNodeXY.h">
-      <Filter>Planet</Filter>
-    </ClInclude>
-    <ClInclude Include="Surface\SurfaceQuadNodeXZ.h">
-      <Filter>Planet</Filter>
-    </ClInclude>
-    <ClInclude Include="Surface\SurfaceQuadNodeZY.h">
-      <Filter>Planet</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\Renderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Shader.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\IRandable.h">
+    <ClInclude Include="Renderer\RandableObj.h">
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\Camera.h">
@@ -82,8 +53,37 @@
     <ClInclude Include="Scene.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="Surface\PlanetProperties.h">
+    <ClInclude Include="Perlin\Perlin.h">
+      <Filter>Perlinnnn</Filter>
+    </ClInclude>
+    <ClInclude Include="Planet\Planet.h">
       <Filter>Planet</Filter>
     </ClInclude>
+    <ClInclude Include="Planet\PlanetProperties.h">
+      <Filter>Planet</Filter>
+    </ClInclude>
+    <ClInclude Include="Planet\SurfaceQuadTree.h">
+      <Filter>Planet</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\default_fragment.frag">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\default_vertex.vs">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\planet.frag">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\planet.vs">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\planet.tcs">
+      <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\planet.tes">
+      <Filter>Resources\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -28,26 +28,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -122,33 +122,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="Renderer\default_fragment.frag" />
-    <None Include="Renderer\default_vertex.vert" />
-    <None Include="Surface\surface.frag" />
-    <None Include="Surface\surface.vert" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Planet\Planet.cpp" />
+    <ClCompile Include="Planet\SurfaceQuadTree.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Shader.cpp" />
-    <ClCompile Include="Surface\Planet.cpp" />
-    <ClCompile Include="Surface\SurfaceQuadNodeXY.cpp" />
-    <ClCompile Include="Surface\SurfaceQuadNodeXZ.cpp" />
-    <ClCompile Include="Surface\SurfaceQuadNodeZY.cpp" />
-    <ClCompile Include="Surface\SurfaceQuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Perlin\Perlin.h" />
+    <ClInclude Include="Planet\Planet.h" />
+    <ClInclude Include="Planet\PlanetProperties.h" />
+    <ClInclude Include="Planet\SurfaceQuadTree.h" />
     <ClInclude Include="Renderer\Camera.h" />
-    <ClInclude Include="Renderer\IRandable.h" />
+    <ClInclude Include="Renderer\RandableObj.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Shader.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="Surface\Planet.h" />
-    <ClInclude Include="Surface\PlanetProperties.h" />
-    <ClInclude Include="Surface\SurfaceQuadNodeXY.h" />
-    <ClInclude Include="Surface\SurfaceQuadNodeXZ.h" />
-    <ClInclude Include="Surface\SurfaceQuadNodeZY.h" />
-    <ClInclude Include="Surface\SurfaceQuadTree.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\default_fragment.frag" />
+    <None Include="Resources\Shaders\default_vertex.vs" />
+    <None Include="Resources\Shaders\planet.frag" />
+    <None Include="Resources\Shaders\planet.tcs" />
+    <None Include="Resources\Shaders\planet.tes" />
+    <None Include="Resources\Shaders\planet.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

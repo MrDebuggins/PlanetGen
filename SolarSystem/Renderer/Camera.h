@@ -1,11 +1,12 @@
+/********************************
+ * Code source: learnopengl.com *
+ *******************************/
 #pragma once
 
-//#include <glad/glad.h>
 #include <chrono>
-#include <ctime>
-#include <iostream>
-#include <GL/freeglut_std.h>
+
 #include <GL/glew.h>
+#include <GL/freeglut_std.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -20,13 +21,15 @@ enum camera_movement {
     LEFT = 'a',
     RIGHT = 'd',
     UP = 'r',
-    DOWN = 'f'
+    DOWN = 'f',
+    Q = 'q',
+    E = 'e'
 };
 
 // Default camera values
 constexpr float yaw_c = -90.0f;
 constexpr float pitch_c = 0.0f;
-constexpr float speed_c = 10000.0f;
+constexpr float speed_c = 1.0f;
 constexpr float sensitivity_c = 0.1f;
 constexpr float zoom_c = 45.0f;
 
@@ -75,7 +78,7 @@ public:
      * \param yaw camera yaw
      * \param pitch camera pitch
      */
-    Camera(glm::vec3 position = glm::vec3(0.0f, 1.0f * 6371001.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f * 6371001.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
     {
         this->position = position;
         worldUp = up;
@@ -91,9 +94,8 @@ public:
      */
     glm::mat4 getViewMatrix() const
     {
-        glm::vec3 tmp = position + front;
-        return glm::lookAt(glm::vec3(0, 0, 0), front, up);
-        //return glm::lookAt(position, tmp, up);
+        //glm::vec3 tmp = position + front;
+        return glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), front, up);
     }
     
     /**
@@ -117,12 +119,15 @@ public:
             buttons[4] = state;
         if (direction == DOWN)
             buttons[5] = state;
+        if (direction == Q)
+            movementSpeed /= 2;
+        if (direction == E)
+            movementSpeed *= 2;
     }
 
     void update()
     {
         std::chrono::high_resolution_clock::time_point tmp = std::chrono::high_resolution_clock::now();
-        //std::cout << tmp - lastUpdateTime << std::endl;
         const float velocity = movementSpeed * std::chrono::duration_cast<std::chrono::duration<double>>(tmp - lastUpdateTime).count();
         lastUpdateTime = tmp;
 
@@ -177,7 +182,7 @@ public:
      */
     void processMouseScroll(const float y_offset)
     {
-        zoom -= static_cast<float>(y_offset);
+        movementSpeed -= static_cast<float>(y_offset);
         if (zoom < 1.0f)
             zoom = 1.0f;
         if (zoom > 45.0f)

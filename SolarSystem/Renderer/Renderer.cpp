@@ -1,13 +1,21 @@
-#include "Renderer.h"
+#pragma once
 
-#include <GL/freeglut_std.h>
-#include <glm/gtc/type_ptr.hpp>
+#include "Renderer.h"
+#include "Shader.h"
+
 #include <glm/gtx/transform.hpp>
 
+float Renderer::windowW = d_width;
+float Renderer::windowH = d_height;
+glm::mat4x4 Renderer::projectionMatrix = glm::perspective(PI / 4, windowW / windowH, 0.1f, 10000000000.0f);
+glm::vec3 Renderer::lightPos;
+GLuint Renderer::defaultShaderProgram;
+Camera* Renderer::camera;
 
-Renderer::Renderer(Camera* camera)
+
+void Renderer::init(Camera* c)
 {
-	this->camera = camera;
+	camera = c;
 
 	// get version info
 	const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
@@ -19,133 +27,55 @@ Renderer::Renderer(Camera* camera)
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1, 1, 1, 0);
-	//glEnable(GL_DEPTH_BUFFER);
 
 	glewInit();
 
 	glEnable(GL_CULL_FACE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// create default shadder program
+	defaultShaderProgram = Shader::createShaderProgram("Resources/Shaders/default_vertex.vs", "Resources/Shaders/default_fragment.frag");
 }
 
-void Renderer::attachShader(GLuint programme, GLuint vs, GLuint fs)
+GLuint Renderer::createShaderProgram(const std::string& vs_file, const std::string& fs_file, const std::string& tcs_file, const std::string& tes_file, const std::string& gs_file)
 {
-	glAttachShader(programme, vs);
-	glAttachShader(programme, fs);
-	glLinkProgram(programme);
-
-	glDeleteShader(vs);
-	glDeleteShader(fs);
+	return Shader::createShaderProgram(vs_file, fs_file, tcs_file, tes_file, gs_file);
 }
 
-void Renderer::registerObject(IRandable* obj)
+GLuint Renderer::getDefaultShaderProgram()
 {
-	float tst[] = {
-		-1,  1,  0,
-		-1, -1,  0,
-		 1, -1,  0,
-		 1,  1,  0
-	};
-
-	unsigned int prim[] = {
-		0, 1,
-		1, 2,
-		2, 3,
-		3, 0
-	};
-
-
-	GLuint vbo, vao, ebo;
-
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ebo);
-
-	glBindVertexArray(vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, obj->getVertexArray()->size() * sizeof(glm::vec3), obj->getVertexArray()->data(), GL_STATIC_DRAW);
-	//glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), tst, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, obj->getPrimitivesArray()->size() * sizeof(unsigned int), obj->getPrimitivesArray()->data(), GL_STATIC_DRAW);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, 8 * sizeof(unsigned int), prim, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	//glEnableVertexAttribArray(1);
-
-	//glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	//glEnableVertexAttribArray(2);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	obj->setVbo(vbo);
-	obj->setVao(vao);
-	obj->setEbo(ebo);
+	return defaultShaderProgram;
 }
 
 void Renderer::setLightPos(const glm::vec3 light_pos)
 {
-	this->lightPos = light_pos;
-}
-
-void Renderer::draw(IRandable* obj)
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	GLuint programme;
-	if(obj->getObjShader())
-	{
-		programme = obj->getObjShader()->getShaderProgramme();
-	}
-	else
-	{
-		programme = defaultShader.getShaderProgramme();
-		
-	}
-	
-	glUseProgram(programme);
-
-	glBindVertexArray(obj->getVao());
-
-	glBindBuffer(GL_ARRAY_BUFFER, obj->getVbo());
-	glBufferData(GL_ARRAY_BUFFER, obj->getVertexArray()->size() * sizeof(glm::vec3), obj->getVertexArray()->data(), GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, obj->getEbo());
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, obj->getPrimitivesArray()->size() * sizeof(unsigned int), obj->getPrimitivesArray()->data(), GL_STATIC_DRAW);
-
-	//GLuint lightPosLoc = glGetUniformLocation(programme, "lightPos");
-	//glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
-
-	// camera position for translating, as camera should be in system origin
-	GLuint camerPosLoc = glGetUniformLocation(programme, "cameraPos");
-	glUniform3fv(camerPosLoc, 1, glm::value_ptr(camera->position));
-
-	modelMatrix *= glm::translate(obj->getPosition());
-
-	GLuint modelMatrixLoc = glGetUniformLocation(programme, "modelViewProjectionMatrix");
-	glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix * camera->getViewMatrix() * modelMatrix));
-
-	GLuint rot = glGetUniformLocation(programme, "rot");
-	glUniformMatrix4fv(rot, 1, GL_FALSE, glm::value_ptr(glm::rotate(tmp, glm::vec3(0, 1, 0))));
-	tmp += 1.0f/63710000.0f;
-
-	glDrawElements(GL_TRIANGLES, obj->getPrimitivesArray()->size(), GL_UNSIGNED_INT, 0);
-
-	modelMatrix = glm::mat4(); // matricea de modelare este matricea identitate
-
-	glutSwapBuffers();
+	lightPos = light_pos;
 }
 
 void Renderer::reshape(const int w, const int h)
 {
+	windowW = w;
+	windowH = h;
+
 	glViewport(0, 0, w, h);
 
 	projectionMatrix = glm::perspective(PI / 4, static_cast<float>(w) / static_cast<float>(h), 0.1f, 10000000000.0f);
 
 	camera->w = w;
 	camera->h = h;
+}
+
+void Renderer::useShaderProgram(GLuint shaderProgram)
+{
+	glUseProgram(shaderProgram);
+}
+
+glm::mat4x4 Renderer::getViewMatrix()
+{
+	return camera->getViewMatrix();
+}
+
+glm::mat4x4 Renderer::getProjectionMatrix()
+{
+	return projectionMatrix;
 }

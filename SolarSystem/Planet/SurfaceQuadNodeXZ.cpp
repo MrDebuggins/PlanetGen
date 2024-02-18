@@ -1,5 +1,6 @@
 #include "SurfaceQuadNodeXZ.h"
 
+
 SurfaceQuadNodeXZ::SurfaceQuadNodeXZ(float c1Min, float c2Min, float c1Max, float c2Max, QUAD_PLANE plane, float planeDirection, PlanetProperties* planet)
 {
 	type = QUAD_CHILD::ROOT;
@@ -49,11 +50,16 @@ void SurfaceQuadNodeXZ::split()
 	float k = planet->radius / sqrt(c.x * c.x + c.y * c.y + c.z * c.z);
 	c *= k;
 	c += planet->position;
-	const float d = Point::distance(c, planet->cameraP);
 
-	//float targetLvl = 1.0 / ((d / (2000.0 + 3*d)) + 1.0 / (planet->maxDepth - 3.6)) + 4.0;
-	float targetLvl = log2(10.0f / d * PI * planet->radius);
-	if ((static_cast<int>(depth) < static_cast<int>(targetLvl) || (depth < 3)) && (depth < planet->maxDepth))
+	float noise = 0.2 * perlin3(c.x, c.y, c.z, 10);
+	noise += 0.5 * perlin3(c.x, c.y, c.z, 100);
+	noise += 0.0 * perlin3(c.x, c.y, c.z, 1000000);
+
+	const float d = Point::distance(c, planet->cameraP) + noise;
+
+	//float targetLvl = log2(10.0f / d * PI * planet->radius);
+	//if ((static_cast<int>(depth) < static_cast<int>(targetLvl) || (depth < 3)) && (depth < planet->maxDepth))
+	if ((d < 5.0 * abs(corners.p0->coords.x - corners.p3->coords.x)) && depth < planet->maxDepth || ((depth < 4) && (!isInDarkSide(c) || (depth < 2))))
 	{
 		if (depth >= 28)
 			std::cout << depth << std::endl;

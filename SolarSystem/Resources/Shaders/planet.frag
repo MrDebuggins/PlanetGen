@@ -1,4 +1,5 @@
-#version 400
+#version 430
+
 out vec4 fragColor;
 
 void main() 

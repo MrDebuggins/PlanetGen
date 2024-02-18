@@ -1,5 +1,6 @@
 #include "SurfaceQuadNodeZY.h"
 
+
 SurfaceQuadNodeZY::SurfaceQuadNodeZY(float c1Min, float c2Min, float c1Max, float c2Max, QUAD_PLANE plane, float planeDirection, PlanetProperties* planet)
 {
 	type = QUAD_CHILD::ROOT;
@@ -31,11 +32,14 @@ void SurfaceQuadNodeZY::split()
 	glm::vec3 c = glm::vec3(corners.p0->coords.x, (corners.p0->coords.y + corners.p3->coords.y) / 2, (corners.p0->coords.z + corners.p3->coords.z) / 2);
 	float k = planet->radius / sqrt(c.x * c.x + c.y * c.y + c.z * c.z);
 	c *= k;
-	c += planet->position;
-	const float d = Point::distance(c, planet->cameraP);
+	float noise = 0.2 * perlin3(corners.p0->coords.x, corners.p0->coords.y, corners.p0->coords.z, 10);
+	noise += 0.5 * perlin3(corners.p0->coords.x, corners.p0->coords.y, corners.p0->coords.z, 100);
+	noise += 0.0 * perlin3(corners.p0->coords.x, corners.p0->coords.y, corners.p0->coords.z, 1000000);
 
-	float targetLvl = log2(10.0f / d * PI * planet->radius);
-	if ((static_cast<int>(depth) < static_cast<int>(targetLvl) || (depth < 3)) && (depth < planet->maxDepth))
+	c += planet->position;
+	const float d = Point::distance(c, planet->cameraP) + noise;
+
+	if ((d < 5.0 * abs(corners.p0->coords.y - corners.p3->coords.y)) && depth < planet->maxDepth || ((depth < 4) && (!isInDarkSide(c) || (depth < 2))))
 	{
 		if (topLeft == NULL)
 		{
