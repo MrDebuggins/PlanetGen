@@ -80,6 +80,8 @@ public:
 
 	void update();
 
+	void pushDoubleToFloat(glm::dvec3 p);
+
 	void pushVertices();
 
 	bool isInDarkSide();

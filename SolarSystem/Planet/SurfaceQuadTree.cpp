@@ -7,7 +7,7 @@ SurfaceQuadNode::SurfaceQuadNode(PlanetProperties* planet, QUAD_PLANE plane, int
 	this->plane = plane;
 	this->planeDirection = planeDirection;
 	topLeftCorner = corner;
-	width = planet->radius * 2.0f;
+	width = planet->sim_r * 2.0f;
 	this->center = center;
 	depth = 0;
 
@@ -27,13 +27,13 @@ SurfaceQuadNode::SurfaceQuadNode(SurfaceQuadNode* parent, glm::vec3 topLeftCorne
 	switch (plane)
 	{
 	case QUAD_PLANE::XY:
-		center = glm::vec3(topLeftCorner.x + width / 2.0f * planeDirection, topLeftCorner.y - width / 2.0f, planet->radius * planeDirection);
+		center = glm::dvec3(topLeftCorner.x + width / 2.0f * planeDirection, topLeftCorner.y - width / 2.0f, planet->sim_r * planeDirection);
 		break;
 	case QUAD_PLANE::XZ:
-		center = glm::vec3(topLeftCorner.x + width / 2.0f * planeDirection, planet->radius * planeDirection, topLeftCorner.z + width / 2.0f);
+		center = glm::dvec3(topLeftCorner.x + width / 2.0f * planeDirection, planet->sim_r * planeDirection, topLeftCorner.z + width / 2.0f);
 		break;
 	case QUAD_PLANE::YZ:
-		center = glm::vec3(planet->radius * planeDirection, topLeftCorner.y - width / 2.0f, topLeftCorner.z - width / 2.0f * planeDirection);
+		center = glm::dvec3(planet->sim_r * planeDirection, topLeftCorner.y - width / 2.0f, topLeftCorner.z - width / 2.0f * planeDirection);
 		break;
 	}
 }
@@ -67,30 +67,32 @@ void SurfaceQuadNode::split()
 	switch (plane)
 	{
 	case QUAD_PLANE::XY:
-		child1 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, center.y, topLeftCorner.z));
-		child3 = new SurfaceQuadNode(this, glm::vec3(center.x, topLeftCorner.y, topLeftCorner.z));
+		child1 = new SurfaceQuadNode(this, glm::dvec3(topLeftCorner.x, center.y, topLeftCorner.z));
+		child3 = new SurfaceQuadNode(this, glm::dvec3(center.x, topLeftCorner.y, topLeftCorner.z));
 		break;
 	case QUAD_PLANE::XZ:
-		child1 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, topLeftCorner.y, center.z));
-		child3 = new SurfaceQuadNode(this, glm::vec3(center.x, topLeftCorner.y, topLeftCorner.z));
+		child1 = new SurfaceQuadNode(this, glm::dvec3(topLeftCorner.x, topLeftCorner.y, center.z));
+		child3 = new SurfaceQuadNode(this, glm::dvec3(center.x, topLeftCorner.y, topLeftCorner.z));
 		break;
 	case QUAD_PLANE::YZ:
-		child1 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, center.y, topLeftCorner.z));
-		child3 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, topLeftCorner.y, center.z));
+		child1 = new SurfaceQuadNode(this, glm::dvec3(topLeftCorner.x, center.y, topLeftCorner.z));
+		child3 = new SurfaceQuadNode(this, glm::dvec3(topLeftCorner.x, topLeftCorner.y, center.z));
 		break;
 	}
 }
 
 void SurfaceQuadNode::update()
 {
-
 	const bool darkSide = isInDarkSide();
 
-	// offset point with planet position and project it to a sphere
-	glm::vec3 worldSystemSphericalCenter = glm::normalize(center + planet->position) * planet->radius;
-	const bool distCheck = glm::distance(worldSystemSphericalCenter, planet->cameraPos) < (width * planet->lodFactor);
+	float real_W = planet->radius * 2.0f;
+	for (int i = 0; i < depth; ++i)
+		real_W /= 2.0f;
 
-	if(!darkSide && distCheck && depth < planet->maxLOD)
+	glm::vec3 worldSystemSphericalCenter = glm::normalize(center) * planet->radius + planet->position;
+	const bool distCheck = glm::distance(worldSystemSphericalCenter, planet->cameraPos) < (real_W * planet->lodFactor);
+
+	if(!darkSide && distCheck && depth < 21)
 	{
 		if (child0 == nullptr)
 		{
@@ -123,6 +125,18 @@ void SurfaceQuadNode::update()
 	}
 }
 
+void SurfaceQuadNode::pushDoubleToFloat(glm::dvec3 p)
+{
+	double pxH, pxL, pyH, pyL, pzH, pzL;
+
+	pxL = std::modf(p.x, &pxH);
+	pyL = std::modf(p.y, &pyH);
+	pzL = std::modf(p.z, &pzH);
+
+	planet->vertices.push_back(glm::vec3(pxH, pyH, pzH));
+	planet->vertices.push_back(glm::vec3(pxL, pyL, pzL));
+}
+
 void SurfaceQuadNode::pushVertices()
 {
 	planet->vertices.push_back(topLeftCorner);
@@ -149,7 +163,7 @@ void SurfaceQuadNode::pushVertices()
 
 bool SurfaceQuadNode::isInDarkSide()
 {
-	glm::vec3 cam = planet->cameraPos - planet->position;
+	glm::dvec3 cam = planet->cameraPos - planet->position;
 	center -= planet->position;
 
 	double axb = cam.x * center.x + cam.y * center.y + cam.z * center.z;

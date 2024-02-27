@@ -78,7 +78,7 @@ public:
      * \param yaw camera yaw
      * \param pitch camera pitch
      */
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f * 6371001.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
+    Camera(glm::vec3 position = glm::vec3(3678299.0f, 3678299.0f, 1.0f * 3678299.0f), glm::vec3 up = glm::vec3(0.0, 1.0, 0.0), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
     {
         this->position = position;
         worldUp = up;
@@ -94,8 +94,9 @@ public:
      */
     glm::mat4 getViewMatrix() const
     {
-        //glm::vec3 tmp = position + front;
-        return glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), front, up);
+        glm::vec3 tmp = position + front;
+        return glm::lookAt(glm::vec3(0.0, 0.0, 0.0), front, up);
+        //return glm::lookAt(position, tmp, up);
     }
     
     /**
@@ -196,7 +197,7 @@ private:
     void updateCameraVectors()
     {
         // calculate the new Front vector
-        glm::vec3 newFront;
+        glm::dvec3 newFront;
         newFront.x = cos(glm::radians(yawE)) * cos(glm::radians(pitchE));
         newFront.y = sin(glm::radians(pitchE));
         newFront.z = sin(glm::radians(yawE)) * cos(glm::radians(pitchE));

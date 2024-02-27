@@ -31,8 +31,8 @@ protected:
 	// vertices array
 	std::vector<float> vertices = 
 	{
-		-0.5f, 0.0f, 6371000.0f,
-		0.5f, 0.0f, 6371000.0f,
+		-1.0f, 0.0f, 6371000.0f,
+		1.0f, 0.0f, 6371000.0f,
 		0.0f, 1.0f, 6371000.0f
 	};
 
@@ -40,6 +40,27 @@ protected:
 	std::vector<unsigned int> primitives = { 0,1,2 };
 
 public:
+	///**
+	//* \brief Struct representing 64 (actually 63) bit floating point vector using one float for integer(h) and one for fractional(l) part
+	//*/
+	//struct float_float
+	//{
+	//	glm::vec3 h;
+	//	glm::vec3 l;
+
+	//	float_float(glm::dvec3 v)
+	//	{
+	//		double pxH, pxL, pyH, pyL, pzH, pzL;
+
+	//		pxL = std::modf(v.x, &pxH);
+	//		pyL = std::modf(v.y, &pyH);
+	//		pzL = std::modf(v.z, &pzH);
+
+	//		h = glm::vec3(pxH, pyH, pzH);
+	//		l = glm::vec3(pxL, pyL, pzL);
+	//	}
+	//};
+
 	~RandableObj()
 	{
 		glDeleteVertexArrays(1, &vao);
@@ -88,7 +109,7 @@ public:
 
 		// object transformations
 		GLint modelMatrix = glGetUniformLocation(shaderProgram, "model");
-		glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1.0f), position)));
+		glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 
 		// camera view matrix
 		GLuint viewMatrix = glGetUniformLocation(shaderProgram, "view");
@@ -101,6 +122,10 @@ public:
 		// camera position
 		GLint cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");
 		glUniform3fv(cameraPosLoc, 1, glm::value_ptr(cameraPos));
+
+		// object position
+		GLint posLoc = glGetUniformLocation(shaderProgram, "pos");
+		glUniform3fv(posLoc, 1, glm::value_ptr(position));
 
 		glDrawElements(GL_TRIANGLES, primitives.size(), GL_UNSIGNED_INT, nullptr);
 	}

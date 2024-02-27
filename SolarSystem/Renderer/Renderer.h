@@ -5,7 +5,6 @@
 #include "Camera.h"
 
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/constants.hpp>
 
 
 /**
@@ -14,7 +13,6 @@
 #ifndef PI
 	#define PI glm::pi<float>()
 #endif
-
 
 // default screen size
 constexpr float d_width = 700;

@@ -25,6 +25,9 @@ struct PlanetProperties
 	// planet radius
 	float radius = 1.0f;
 
+	// radius used for generation (a power of 2 is better for precision)
+	float sim_r = 256.0f;
+
 	// maximum level of detail, dependent of planet radius, ex: Earth radius = 6371000 m, maxLOD = 27 - 6
 	// last 6 levels will be complemented with tessellation
 	unsigned int maxLOD;

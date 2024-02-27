@@ -1,4 +1,6 @@
-﻿#include "Scene.h"
+﻿#include <iostream>
+
+#include "Scene.h"
 #include "Planet/Planet.h"
 
 #include <GL/freeglut_ext.h>
@@ -10,6 +12,7 @@ extern "C" {
 }
 
 Scene scene = Scene();
+std::chrono::high_resolution_clock::time_point lastTime = std::chrono::high_resolution_clock::now();
 
 
 static void processKeyboardPress(const unsigned char key, const int x, const int y)
@@ -33,6 +36,7 @@ static void processMouseMove(const int x, const int y)
 static void display()
 {
 	scene.draw();
+	glutPostRedisplay();
 }
 
 static void update()
@@ -49,7 +53,8 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitWindowPosition(0, 0);
 	glutInitWindowSize(700, 400);
-	glutCreateWindow("PlanetGen");	
+	glutCreateWindow("PlanetGen");
+	
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 
@@ -62,7 +67,7 @@ int main(int argc, char** argv)
 	glutPassiveMotionFunc(processMouseMove);
 
 	scene.initRenderer();
-	Planet test = Planet(6371000.0, glm::vec3(0.0f));
+	Planet test = Planet(6371000.0f, glm::vec3(0.0f));
 	RandableObj test1 = RandableObj();
 	scene.addObject(&test);
 	scene.addObject(&test1);

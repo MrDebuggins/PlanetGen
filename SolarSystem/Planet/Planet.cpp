@@ -27,28 +27,28 @@ void Planet::prepareObject()
 {
 	// init all 6 faces as new trees
 	rootXYPos = new SurfaceQuadNode(&properties, QUAD_PLANE::XY, 1,
-		glm::vec3(-properties.radius, properties.radius, properties.radius),
-		glm::vec3(0.0f, 0.0f, properties.radius));
+		glm::vec3(-properties.sim_r, properties.sim_r, properties.sim_r),
+		glm::vec3(0.0, 0.0, properties.sim_r));
 
 	rootXYNeg = new SurfaceQuadNode(&properties, QUAD_PLANE::XY, -1,
-		glm::vec3(properties.radius, properties.radius, -properties.radius),
-		glm::vec3(0.0f, 0.0f, -properties.radius));
+		glm::vec3(properties.sim_r, properties.sim_r, -properties.sim_r),
+		glm::vec3(0.0, 0.0, -properties.sim_r));
 
 	rootXZPos = new SurfaceQuadNode(&properties, QUAD_PLANE::XZ, 1,
-		glm::vec3(-properties.radius, properties.radius, -properties.radius),
-		glm::vec3(0.0f, properties.radius, 0.0f));
+		glm::vec3(-properties.sim_r, properties.sim_r, -properties.sim_r),
+		glm::vec3(0.0, properties.sim_r, 0.0));
 
 	rootXZNeg = new SurfaceQuadNode(&properties, QUAD_PLANE::XZ, -1,
-		glm::vec3(properties.radius, -properties.radius, -properties.radius),
-		glm::vec3(0.0f, -properties.radius, 0.0f));
+		glm::vec3(properties.sim_r, -properties.sim_r, -properties.sim_r),
+		glm::vec3(0.0, -properties.sim_r, 0.0));
 
 	rootYZPos = new SurfaceQuadNode(&properties, QUAD_PLANE::YZ, 1,
-		glm::vec3(properties.radius, properties.radius, properties.radius),
-		glm::vec3(properties.radius, 0.0f, 0.0f));
+		glm::vec3(properties.sim_r, properties.sim_r, properties.sim_r),
+		glm::vec3(properties.sim_r, 0.0, 0.0));
 
 	rootYZNeg = new SurfaceQuadNode(&properties, QUAD_PLANE::YZ, -1,
-		glm::vec3(-properties.radius, properties.radius, -properties.radius),
-		glm::vec3(-properties.radius, 0.0f, 0.0f));
+		glm::vec3(-properties.sim_r, properties.sim_r, -properties.sim_r),
+		glm::vec3(-properties.sim_r, 0.0, 0.0));
 
 	// gen buffers
 	glGenVertexArrays(1, &vao);
@@ -60,7 +60,7 @@ void Planet::prepareObject()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER,  properties.vertices.size() * sizeof(glm::vec3), properties.vertices.data(), GL_STATIC_DRAW);
 
-	// position attribute
+	// position attribute H
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(0);
 
@@ -79,7 +79,6 @@ void Planet::prepareObject()
 
 void Planet::update()
 {
-	//return;
 	properties.vertices.clear();
 
 	rootXYPos->update();
@@ -103,12 +102,16 @@ void Planet::draw()
 	GLint projMat = glGetUniformLocation(shaderProgram, "projection");
 	glUniformMatrix4fv(projMat, 1, GL_FALSE, glm::value_ptr(Renderer::getProjectionMatrix()));
 
-	GLint camPos = glGetUniformLocation(shaderProgram, "cameraPos");
-	glUniform3fv(camPos, 1, glm::value_ptr(cameraPos));
+	// camera position
+	GLint cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");
+	glUniform3fv(cameraPosLoc, 1, glm::value_ptr(cameraPos));
 
-	GLint radius = glGetUniformLocation(shaderProgram, "radius");
-	//glUniform1f(camPos, properties.radius);
-	glProgramUniform1f(shaderProgram, radius, properties.radius);
+	// object position
+	GLint posLoc = glGetUniformLocation(shaderProgram, "objPos");
+	glUniform3fv(posLoc, 1, glm::value_ptr(position));
+
+	GLint radiusLoc = glGetUniformLocation(shaderProgram, "radius");
+	glProgramUniform1f(shaderProgram, radiusLoc, properties.radius);
 
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
