@@ -17,7 +17,7 @@
 struct PlanetProperties
 {
 	// level of detail factor, greater means better detail
-	float lodFactor = 1.0f;
+	float lodFactor = 2.0f;
 
 	// vertices from all planes
 	std::vector<glm::vec3> vertices = std::vector<glm::vec3>();
@@ -28,15 +28,18 @@ struct PlanetProperties
 	// radius used for generation (a power of 2 is better for precision)
 	float sim_r = 256.0f;
 
-	// maximum level of detail, dependent of planet radius, ex: Earth radius = 6371000 m, maxLOD = 27 - 6
-	// last 6 levels will be complemented with tessellation
+	// maximum level of detail, dependent of planet radius, ex: Earth radius = 6371000 m, maxLOD = 27 - 4
+	// last 4 levels will be complemented with tessellation
 	unsigned int maxLOD;
 
 	// planet position
-	glm::vec3 position;
+	glm::vec3 position = glm::vec3(0.0f);
 
-	// camera position
-	glm::vec3 cameraPos;
+	// camera position in meters
+	glm::vec3 cameraPos_m = glm::vec3(0.0f);
+
+	// camera position in mega meters
+	glm::vec3 cameraPos_M = glm::vec3(0.0f);
 
 	PlanetProperties()
 	{
@@ -48,12 +51,11 @@ struct PlanetProperties
 	 * \brief Constructor with radius parameter, based on it maxLOD will be calculated
 	 * \param radius planet radius
 	 */
-	PlanetProperties(const float radius, glm::vec3 pos, glm::vec3 camPos)
+	PlanetProperties(const float radius, glm::vec3 pos)
 	{
 		this->radius = radius;
-		maxLOD = log2(10 * PI * radius) - 6;
+		maxLOD = log2(10 * PI * radius) - 4;
 
 		position = pos;
-		cameraPos = camPos;
 	}
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RandableObj.h"
+#include "Planet/Planet.h"
 
 
 class Scene
@@ -9,6 +10,9 @@ class Scene
 	 * \brief Default camera
 	 */
 	Camera camera;
+
+	// celestial objects, mostly planets
+	std::vector<Planet*> planets = std::vector<Planet*>();
 
 	// Randable objects
 	std::vector<RandableObj*> meshes = std::vector<RandableObj*>();
@@ -23,6 +27,7 @@ public:
 	~Scene()
 	{
 		meshes.clear();
+		planets.clear();
 	}
 
 	/**
@@ -41,11 +46,16 @@ public:
 	{
 		// init mesh buffers
 		obj->prepareObject();
-
 		// pass camera position to object
-		obj->setCameraPos(camera.position);
-
+		obj->setCameraPos(camera.position_m + camera.position_M);
 		meshes.push_back(obj);
+	}
+
+	void addPlanet(Planet* p)
+	{
+		p->prepareObject();
+		p->setCameraPos(camera.position_m, camera.position_M);
+		planets.push_back(p);
 	}
 
 	/**
@@ -82,11 +92,18 @@ public:
 		// update camera
 		camera.update();
 
-		//update meshes
+		// update meshes
 		for (RandableObj* obj : meshes)
 		{
-			obj->setCameraPos(camera.position);
+			obj->setCameraPos(camera.position_m + camera.position_M);
 			obj->update();
+		}
+
+		// update planets
+		for(Planet* p : planets)
+		{
+			p->setCameraPos(camera.position_m, camera.position_M);
+			p->update();
 		}
 	}
 
@@ -97,10 +114,16 @@ public:
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		Renderer::useShaderProgram(Renderer::getDefaultShaderProgram());
 		for (RandableObj* obj : meshes)
 		{
-			Renderer::useShaderProgram(obj->getShaderProgram());
 			obj->draw();
+		}
+
+		for(Planet* p : planets)
+		{
+			Renderer::useShaderProgram(p->getShaderProgram());
+			p->draw();
 		}
 
 		glutSwapBuffers();

@@ -2,7 +2,8 @@
 
 layout (vertices=4) out;
 
-uniform vec3 cameraPos;      // camera position
+uniform vec3 cameraPos_m;      // camera position in meters
+uniform vec3 cameraPos_M;      // camera position in mega meters
 uniform vec3 objPos;		  // object position
 uniform float radius;         // planet radius
 
@@ -28,34 +29,26 @@ void main()
         // patch center
         vec3 c = vec3((p0.x+p1.x+p2.x+p3.x)/4, (p0.y+p1.y+p2.y+p3.y)/4, (p0.z+p1.z+p2.z+p3.z)/4);
 
-        // patch width
-        float w = distance(p0, p1);
-
-        // angle between camera vector and patch center vector
-        float a = acos(dot(normalize(cameraPos - objPos), normalize(c)));
-
         // angle between patch-camera vector and patch-origin vector
-        float b = PI - acos(dot(normalize(cameraPos - objPos - c), normalize(c)));
+        float b = PI - acos(dot(normalize((cameraPos_M - objPos - c) + cameraPos_m), normalize(c)));
         
-        uint lvl;
+        uint lvlI, lvlO = 16;
         if(b < (PI / 2.0f))
         {
-            lvl = 1;
-            if(w > (radius / 2))
-                lvl = uint(w / (radius / 64.0f));
+            lvlI = 1;
         }
         else
         {
-            lvl = 64;
+            lvlI = 16;
         }
 
-        gl_TessLevelOuter[0] = 64;
-        gl_TessLevelOuter[1] = 64;
-        gl_TessLevelOuter[2] = 64;
-        gl_TessLevelOuter[3] = 64;
+        gl_TessLevelOuter[0] = lvlO;
+        gl_TessLevelOuter[1] = lvlO;
+        gl_TessLevelOuter[2] = lvlO;
+        gl_TessLevelOuter[3] = lvlO;
 
-        gl_TessLevelInner[0] = lvl;
-        gl_TessLevelInner[1] = lvl;
+        gl_TessLevelInner[0] = lvlI;
+        gl_TessLevelInner[1] = lvlI;
 
     }
 }

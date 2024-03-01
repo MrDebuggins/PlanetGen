@@ -68,8 +68,10 @@ int main(int argc, char** argv)
 
 	scene.initRenderer();
 	Planet test = Planet(6371000.0f, glm::vec3(0.0f));
+	//Planet test2 = Planet(6371000.0f, glm::vec3(33000000.0f, 0.0f, 0.0f));
 	RandableObj test1 = RandableObj();
-	scene.addObject(&test);
+	scene.addPlanet(&test);
+	//scene.addPlanet(&test2);
 	scene.addObject(&test1);
 
 	// start application

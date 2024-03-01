@@ -13,14 +13,12 @@ Planet::~Planet()
 
 Planet::Planet()
 {
-	properties = PlanetProperties(6371000.0f, glm::vec3(0.0f), cameraPos);
-	position = glm::vec3(0.0f);
+	properties = PlanetProperties(6371000.0f, glm::vec3(0.0f));
 }
 
 Planet::Planet(float radius, glm::vec3 pos)
 {
-	properties = PlanetProperties(radius, pos, cameraPos);
-	position = pos;
+	properties = PlanetProperties(radius, pos);
 }
 
 void Planet::prepareObject()
@@ -103,12 +101,14 @@ void Planet::draw()
 	glUniformMatrix4fv(projMat, 1, GL_FALSE, glm::value_ptr(Renderer::getProjectionMatrix()));
 
 	// camera position
-	GLint cameraPosLoc = glGetUniformLocation(shaderProgram, "cameraPos");
-	glUniform3fv(cameraPosLoc, 1, glm::value_ptr(cameraPos));
+	GLint cameraPosmLoc = glGetUniformLocation(shaderProgram, "cameraPos_m");
+	glUniform3fv(cameraPosmLoc, 1, glm::value_ptr(properties.cameraPos_m));
+	GLint cameraPosMLoc = glGetUniformLocation(shaderProgram, "cameraPos_M");
+	glUniform3fv(cameraPosMLoc, 1, glm::value_ptr(1000000.0f * properties.cameraPos_M));
 
 	// object position
 	GLint posLoc = glGetUniformLocation(shaderProgram, "objPos");
-	glUniform3fv(posLoc, 1, glm::value_ptr(position));
+	glUniform3fv(posLoc, 1, glm::value_ptr(properties.position));
 
 	GLint radiusLoc = glGetUniformLocation(shaderProgram, "radius");
 	glProgramUniform1f(shaderProgram, radiusLoc, properties.radius);
@@ -120,8 +120,13 @@ void Planet::draw()
 	glDrawArrays(GL_PATCHES, 0, properties.vertices.size());
 }
 
-void Planet::setCameraPos(const glm::vec3 pos)
+void Planet::setCameraPos(glm::vec3 pos_m, glm::vec3 pos_M)
 {
-	cameraPos = pos;
-	properties.cameraPos = pos;
+	properties.cameraPos_m = pos_m;
+	properties.cameraPos_M = pos_M;
+}
+
+GLuint Planet::getShaderProgram()
+{
+	return shaderProgram;
 }

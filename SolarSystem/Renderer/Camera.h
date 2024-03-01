@@ -32,6 +32,7 @@ constexpr float pitch_c = 0.0f;
 constexpr float speed_c = 1.0f;
 constexpr float sensitivity_c = 0.1f;
 constexpr float zoom_c = 45.0f;
+const float coef_M = 1000000.0f;
 
 /**
  * \brief An abstract camera class that processes input and calculates the corresponding Euler Angles,
@@ -44,7 +45,8 @@ public:
     time_t timer;
 
     // camera Attributes
-    glm::vec3 position;
+    glm::vec3 position_m = glm::vec3(0.0f); // meters
+    glm::vec3 position_M = glm::vec3(0.0f); // mega meters
     glm::vec3 front;
     glm::vec3 up;
     glm::vec3 right;
@@ -78,9 +80,9 @@ public:
      * \param yaw camera yaw
      * \param pitch camera pitch
      */
-    Camera(glm::vec3 position = glm::vec3(3678299.0f, 3678299.0f, 1.0f * 3678299.0f), glm::vec3 up = glm::vec3(0.0, 1.0, 0.0), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
+    Camera(glm::vec3 pos_m = glm::vec3(3678299.0f, 3678299.0f, 3678299.0f), glm::vec3 up = glm::vec3(0.0, 1.0, 0.0), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
     {
-        this->position = position;
+        updatePosition(pos_m);
         worldUp = up;
         this->yawE = yaw;
         this->pitchE = pitch;
@@ -94,9 +96,10 @@ public:
      */
     glm::mat4 getViewMatrix() const
     {
-        glm::vec3 tmp = position + front;
-        return glm::lookAt(glm::vec3(0.0, 0.0, 0.0), front, up);
+        //glm::vec3 tmp = position + front;
         //return glm::lookAt(position, tmp, up);
+
+        return glm::lookAt(glm::vec3(0.0, 0.0, 0.0), front, up);
     }
     
     /**
@@ -132,18 +135,18 @@ public:
         const float velocity = movementSpeed * std::chrono::duration_cast<std::chrono::duration<double>>(tmp - lastUpdateTime).count();
         lastUpdateTime = tmp;
 
-        if(buttons[0])
-            position += front * velocity;
+        if (buttons[0])
+            updatePosition(front * velocity);
         if (buttons[1])
-            position -= front * velocity;
+            updatePosition(-front * velocity);
         if (buttons[2])
-            position -= right * velocity;
+            updatePosition(-right * velocity);
         if (buttons[3])
-            position += right * velocity;
+            updatePosition(right * velocity);
         if (buttons[4])
-            position += up * velocity;
+            updatePosition(up * velocity);
         if (buttons[5])
-            position -= up * velocity;
+            updatePosition(-up * velocity);
     }
 
     /**
@@ -205,5 +208,23 @@ private:
         // also re-calculate the Right and Up vector
         right = glm::normalize(glm::cross(front, worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         up = glm::normalize(glm::cross(right, front));
+    }
+
+    void updatePosition(glm::vec3 posOffset)
+    {
+        float posOffset_m = fmodf((posOffset.x + position_m.x), 100000.0f);
+        float posOffset_M = ((posOffset.x + position_m.x) - posOffset_m) / coef_M;
+        position_m.x = posOffset_m;
+        position_M.x += posOffset_M;
+
+        posOffset_m = fmodf((posOffset.y + position_m.y), 100000.0f);
+        posOffset_M = ((posOffset.y + position_m.y) - posOffset_m) / coef_M;
+        position_m.y = posOffset_m;
+        position_M.y += posOffset_M;
+
+        posOffset_m = fmodf((posOffset.z + position_m.z), 100000.0f);
+        posOffset_M = ((posOffset.z + position_m.z) - posOffset_m) / coef_M;
+        position_m.z = posOffset_m;
+        position_M.z += posOffset_M;
     }
 };

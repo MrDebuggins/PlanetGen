@@ -22,6 +22,9 @@ protected:
 	// shader program used by object
 	GLuint shaderProgram;
 
+	// object position in meters
+	glm::vec3 position_m = glm::vec3(0, 0, 0);
+
 	// object position
 	glm::vec3 position = glm::vec3(0, 0, 0);
 
@@ -31,36 +34,15 @@ protected:
 	// vertices array
 	std::vector<float> vertices = 
 	{
-		-1.0f, 0.0f, 6371000.0f,
-		1.0f, 0.0f, 6371000.0f,
-		0.0f, 1.0f, 6371000.0f
+		-1.0f, 0.0f, 28000000.0f,
+		1.0f, 0.0f, 28000000.0f,
+		0.0f, 1.0f, 28000000.0f
 	};
 
 	// primitives array
 	std::vector<unsigned int> primitives = { 0,1,2 };
 
 public:
-	///**
-	//* \brief Struct representing 64 (actually 63) bit floating point vector using one float for integer(h) and one for fractional(l) part
-	//*/
-	//struct float_float
-	//{
-	//	glm::vec3 h;
-	//	glm::vec3 l;
-
-	//	float_float(glm::dvec3 v)
-	//	{
-	//		double pxH, pxL, pyH, pyL, pzH, pzL;
-
-	//		pxL = std::modf(v.x, &pxH);
-	//		pyL = std::modf(v.y, &pyH);
-	//		pzL = std::modf(v.z, &pzH);
-
-	//		h = glm::vec3(pxH, pyH, pzH);
-	//		l = glm::vec3(pxL, pyL, pzL);
-	//	}
-	//};
-
 	~RandableObj()
 	{
 		glDeleteVertexArrays(1, &vao);

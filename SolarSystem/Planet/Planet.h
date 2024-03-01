@@ -6,8 +6,16 @@
 
 #define PI glm::pi<float>()
 
-class Planet : virtual public RandableObj
+class Planet
 {
+	// buffer identifiers
+	GLuint vbo;
+	GLuint vao;
+	GLuint ebo;
+
+	// shader program used by object
+	GLuint shaderProgram;
+
 	PlanetProperties properties;
 
 	SurfaceQuadNode* rootXYPos = nullptr;
@@ -31,5 +39,7 @@ public:
 
 	void draw();
 
-	void setCameraPos(const glm::vec3 pos);
+	void setCameraPos(glm::vec3 pos_m, glm::vec3 pos_M);
+
+	GLuint getShaderProgram();
 };

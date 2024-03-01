@@ -2,8 +2,9 @@
 
 layout (quads, equal_spacing, ccw) in;
 
-uniform vec3 cameraPos;      // camera position
-uniform vec3 objPos;		  // object position
+uniform vec3 cameraPos_m;      // camera position in meters
+uniform vec3 cameraPos_M;      // camera position in mega meters
+uniform vec3 objPos;		  // object position in meters
 uniform float radius;         // planet radius
 uniform mat4 model;           // model matrix
 uniform mat4 view;            // view matrix
@@ -98,11 +99,9 @@ void main()
     vec4 p = (p1 - p0) * v + p0;
 
 	// ----------------------------------------------------------------------
-	// compute final position in double (there is no real difference in performance for such small portion of operations) 280 fps rtx 3060 worst case
-	dvec4 pos = dvec4(p);
-	pos.xyz = normalize(pos.xyz) * double(radius) - dvec3(cameraPos);
-	p.xyz = vec3(pos.xyz);
-
+	// compute final position in double (there is no real difference in performance for such small portion of operations) 340 fps rtx 3060 worst case
+	p.xyz = vec3((normalize(dvec3(p.xyz)) * double(radius) + dvec3(objPos - cameraPos_M)) - dvec3(cameraPos_m));
+	
     // ----------------------------------------------------------------------
     // output patch point position in clip space
     gl_Position = projection * view * model * p;
