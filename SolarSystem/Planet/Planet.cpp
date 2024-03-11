@@ -1,5 +1,7 @@
 #include "Planet.h"
 
+#include <iostream>
+
 
 Planet::~Planet()
 {
@@ -56,9 +58,9 @@ void Planet::prepareObject()
 
 	// load data
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER,  properties.vertices.size() * sizeof(glm::vec3), properties.vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER,  properties.vertices.size() * sizeof(float), properties.vertices.data(), GL_DYNAMIC_DRAW);
 
-	// position attribute H
+	// position attribute 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(0);
 
@@ -71,13 +73,12 @@ void Planet::prepareObject()
 		"Resources/Shaders/planet.frag",
 		"Resources/Shaders/planet.tcs",
 		"Resources/Shaders/planet.tes");
-
-	//update();
 }
 
 void Planet::update()
 {
 	properties.vertices.clear();
+	properties.currentMaxLOD = 0;
 
 	rootXYPos->update();
 	rootXYNeg->update();
@@ -110,8 +111,19 @@ void Planet::draw()
 	GLint posLoc = glGetUniformLocation(shaderProgram, "objPos");
 	glUniform3fv(posLoc, 1, glm::value_ptr(properties.position));
 
+	// radius
 	GLint radiusLoc = glGetUniformLocation(shaderProgram, "radius");
-	glProgramUniform1f(shaderProgram, radiusLoc, properties.radius);
+	glUniform1f(radiusLoc, properties.radius);
+
+	// minimum level of detail
+	GLint lodLoc = glGetUniformLocation(shaderProgram, "currentMaxLOD");
+	glUniform1ui(lodLoc, properties.currentMaxLOD);
+
+	// noise properties
+	GLint periodsLoc = glGetUniformLocation(shaderProgram, "periods");
+	glUniform1fv(periodsLoc, 5, properties.periods);
+	GLint amplitudesLoc = glGetUniformLocation(shaderProgram, "amps");
+	glUniform1fv(amplitudesLoc, 5, properties.amplitudes);
 
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);

@@ -32,6 +32,15 @@ struct PlanetProperties
 	// last 4 levels will be complemented with tessellation
 	unsigned int maxLOD;
 
+	// maximum level of detail for current camera position
+	unsigned int currentMaxLOD = 0;
+
+	// periods (aka. resolution, inverse of frequency) 
+	float periods[5] = { 1, 10, 100, 10000, 5000000 };
+
+	// amplitudes
+	float amplitudes[5] = { 0.5f, 5.0f, 50.0f, 1000.0f, 10000.0f };
+
 	// planet position
 	glm::vec3 position = glm::vec3(0.0f);
 
@@ -44,7 +53,7 @@ struct PlanetProperties
 	PlanetProperties()
 	{
 		radius = 6371000.0f;
-		maxLOD = log2(10 * PI * radius) - 6;
+		maxLOD = log2(10 * PI * radius) - 5;
 	}
 
 	/**
@@ -54,7 +63,7 @@ struct PlanetProperties
 	PlanetProperties(const float radius, glm::vec3 pos)
 	{
 		this->radius = radius;
-		maxLOD = log2(10 * PI * radius) - 4;
+		maxLOD = log2(10 * PI * radius) - 5;
 
 		position = pos;
 	}

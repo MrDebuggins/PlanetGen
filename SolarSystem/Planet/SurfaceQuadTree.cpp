@@ -1,4 +1,7 @@
 #include "SurfaceQuadTree.h"
+#include "Perlin.h"
+
+#include <iostream>
 
 const float coef_M = 1000000.0f;
 
@@ -37,6 +40,13 @@ SurfaceQuadNode::SurfaceQuadNode(SurfaceQuadNode* parent, glm::vec3 topLeftCorne
 		center = glm::dvec3(planet->sim_r * planeDirection, topLeftCorner.y - width / 2.0f, topLeftCorner.z - width / 2.0f * planeDirection);
 		break;
 	}
+
+	glm::vec3 realCenter = glm::normalize(center) * planet->radius + planet->position;
+	noise = planet->amplitudes[0] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[0]);
+	noise += planet->amplitudes[1] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[1]);
+	noise += planet->amplitudes[2] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[2]);
+	noise += planet->amplitudes[3] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[3]);
+	noise += planet->amplitudes[4] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[4]);
 }
 
 void SurfaceQuadNode::DestroyQuadTree(SurfaceQuadNode* node)
@@ -84,20 +94,19 @@ void SurfaceQuadNode::split()
 
 void SurfaceQuadNode::update()
 {
+	if (depth > planet->currentMaxLOD)
+		planet->currentMaxLOD = depth;
+
 	// true if patch is in dark side of the planet
 	const bool darkSide = isInDarkSide();
 
 	// real planet radius
-	float real_W = planet->radius * 2.0f;
-	for (int i = 0; i < depth; ++i)
-		real_W /= 2.0f;
+	float real_W = width * (planet->radius / planet->sim_r);
 
-	// distance to camera in meters and mega meters
-	//float dist_m = glm::length(planet->cameraPos_m);
-	float dist_M = glm::distance(glm::normalize(center) * planet->radius + planet->position, coef_M * planet->cameraPos_M + planet->cameraPos_m);
+	// distance to camera
+	float dist = glm::distance(glm::normalize(center) * (planet->radius + noise) + planet->position, coef_M * planet->cameraPos_M + planet->cameraPos_m);
 
-
-	const bool distCheck = (dist_M) < (real_W * planet->lodFactor);
+	const bool distCheck = (dist) < (real_W * planet->lodFactor);
 
 	if(!darkSide && distCheck && depth <= planet->maxLOD || depth < 3)
 	{
@@ -171,9 +180,9 @@ void SurfaceQuadNode::pushVertices()
 bool SurfaceQuadNode::isInDarkSide()
 {
 	glm::dvec3 cam = (1000000.0f * planet->cameraPos_M - planet->position) + planet->cameraPos_m;
-	center -= planet->position;
+	glm::vec3 worldCoordsCenter = center - planet->position;
 
-	double axb = cam.x * center.x + cam.y * center.y + cam.z * center.z;
+	double axb = cam.x * worldCoordsCenter.x + cam.y * worldCoordsCenter.y + cam.z * worldCoordsCenter.z;
 
 	return (axb < 0);
 }

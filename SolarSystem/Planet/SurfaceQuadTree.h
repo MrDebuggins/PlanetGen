@@ -36,6 +36,9 @@ public:
 	// quad center
 	glm::vec3 center;
 
+	// noise value
+	float noise = 0.0f;
+
 	// node LOD (0 - root, face of the basic cube)
 	unsigned int depth;
 

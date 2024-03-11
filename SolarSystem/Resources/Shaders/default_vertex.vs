@@ -10,6 +10,6 @@ uniform vec3 pos;
 
 void main() 
 {
-	vec3 npos = vPos - cameraPos;
+	vec3 npos = vPos + pos - cameraPos;
 	gl_Position = projection * view * model * vec4(npos, 1.0);
 }

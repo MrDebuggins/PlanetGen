@@ -67,8 +67,8 @@ int main(int argc, char** argv)
 	glutPassiveMotionFunc(processMouseMove);
 
 	scene.initRenderer();
-	Planet test = Planet(6371000.0f, glm::vec3(0.0f));
-	//Planet test2 = Planet(6371000.0f, glm::vec3(33000000.0f, 0.0f, 0.0f));
+	Planet test = Planet(6371000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+	//Planet test2 = Planet(1737400.0f, glm::vec3(360000000.0f, 0.0f, 0.0f));
 	RandableObj test1 = RandableObj();
 	scene.addPlanet(&test);
 	//scene.addPlanet(&test2);

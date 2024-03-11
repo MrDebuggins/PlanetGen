@@ -34,9 +34,9 @@ protected:
 	// vertices array
 	std::vector<float> vertices = 
 	{
-		-1.0f, 0.0f, 28000000.0f,
-		1.0f, 0.0f, 28000000.0f,
-		0.0f, 1.0f, 28000000.0f
+		-0.1f, 0.0f, 6371000.0f,
+		0.1f, 0.0f, 6371000.0f,
+		0.0f, 1.0f, 6371000.0f
 	};
 
 	// primitives array

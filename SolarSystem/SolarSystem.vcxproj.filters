@@ -7,9 +7,6 @@
     <Filter Include="Renderer">
       <UniqueIdentifier>{c579fec2-0c48-4d91-80fa-c17243d7cb1f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Perlinnnn">
-      <UniqueIdentifier>{7566caea-7ff1-47ac-a6bc-8bce3d5b49a9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{a0c8d410-6d88-4845-8d74-13d69c758b65}</UniqueIdentifier>
     </Filter>
@@ -18,6 +15,9 @@
     </Filter>
     <Filter Include="Planet">
       <UniqueIdentifier>{aceed0f3-ec9b-46ca-98e5-e13854bbc34e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Perlin">
+      <UniqueIdentifier>{7566caea-7ff1-47ac-a6bc-8bce3d5b49a9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -54,7 +54,7 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="Perlin\Perlin.h">
-      <Filter>Perlinnnn</Filter>
+      <Filter>Perlin</Filter>
     </ClInclude>
     <ClInclude Include="Planet\Planet.h">
       <Filter>Planet</Filter>

@@ -67,6 +67,11 @@ public:
 	 */
 	void processKeyboard(unsigned char key, int x, int y, const bool state)
 	{
+		if (key == 'g')
+			Renderer::switchLineView(true);
+		if(key == 'h')
+			Renderer::switchLineView(false);
+
 		// update camera
 		camera.processKeyboard(static_cast<camera_movement>(key), 0.3f, state);
 	}
@@ -95,7 +100,7 @@ public:
 		// update meshes
 		for (RandableObj* obj : meshes)
 		{
-			obj->setCameraPos(camera.position_m + camera.position_M);
+			obj->setCameraPos(camera.position_m + 1000000.0f * camera.position_M);
 			obj->update();
 		}
 

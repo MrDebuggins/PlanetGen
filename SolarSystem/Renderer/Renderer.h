@@ -98,4 +98,6 @@ public:
 	 * \return projection matrix
 	 */
 	static glm::mat4x4 getProjectionMatrix();
+
+	static void switchLineView(bool v);
 };

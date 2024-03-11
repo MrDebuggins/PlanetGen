@@ -31,7 +31,7 @@ void Renderer::init(Camera* c)
 	glewInit();
 
 	glEnable(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT, GL_LINE);
 
 	// create default shadder program
 	defaultShaderProgram = Shader::createShaderProgram("Resources/Shaders/default_vertex.vs", "Resources/Shaders/default_fragment.frag");
@@ -78,4 +78,12 @@ glm::mat4x4 Renderer::getViewMatrix()
 glm::mat4x4 Renderer::getProjectionMatrix()
 {
 	return projectionMatrix;
+}
+
+void Renderer::switchLineView(bool v)
+{
+	if(v)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
