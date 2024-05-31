@@ -85,6 +85,7 @@
       <AdditionalIncludeDirectories>D:\planet_generator_demo\planet test_fork\SolarSystem\Perlin;Renderer;include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <AdditionalDependencies>freeglutd.lib;glew32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -122,13 +123,73 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GLUI\algebra3.cpp" />
+    <ClCompile Include="GLUI\arcball.cpp" />
+    <ClCompile Include="GLUI\glui.cpp" />
+    <ClCompile Include="GLUI\glui_add_controls.cpp" />
+    <ClCompile Include="GLUI\glui_bitmaps.cpp" />
+    <ClCompile Include="GLUI\glui_bitmap_img_data.cpp" />
+    <ClCompile Include="GLUI\glui_button.cpp" />
+    <ClCompile Include="GLUI\glui_checkbox.cpp" />
+    <ClCompile Include="GLUI\glui_column.cpp" />
+    <ClCompile Include="GLUI\glui_commandline.cpp" />
+    <ClCompile Include="GLUI\glui_control.cpp" />
+    <ClCompile Include="GLUI\glui_edittext.cpp" />
+    <ClCompile Include="GLUI\glui_img_checkbox_0.c" />
+    <ClCompile Include="GLUI\glui_img_checkbox_0_dis.c" />
+    <ClCompile Include="GLUI\glui_img_checkbox_1.c" />
+    <ClCompile Include="GLUI\glui_img_checkbox_1_dis.c" />
+    <ClCompile Include="GLUI\glui_img_downarrow.c" />
+    <ClCompile Include="GLUI\glui_img_leftarrow.c" />
+    <ClCompile Include="GLUI\glui_img_listbox_down.c" />
+    <ClCompile Include="GLUI\glui_img_listbox_up.c" />
+    <ClCompile Include="GLUI\glui_img_listbox_up_dis.c" />
+    <ClCompile Include="GLUI\glui_img_radiobutton_0.c" />
+    <ClCompile Include="GLUI\glui_img_radiobutton_0_dis.c" />
+    <ClCompile Include="GLUI\glui_img_radiobutton_1.c" />
+    <ClCompile Include="GLUI\glui_img_radiobutton_1_dis.c" />
+    <ClCompile Include="GLUI\glui_img_rightarrow.c" />
+    <ClCompile Include="GLUI\glui_img_spindown_0.c" />
+    <ClCompile Include="GLUI\glui_img_spindown_1.c" />
+    <ClCompile Include="GLUI\glui_img_spindown_dis.c" />
+    <ClCompile Include="GLUI\glui_img_spinup_0.c" />
+    <ClCompile Include="GLUI\glui_img_spinup_1.c" />
+    <ClCompile Include="GLUI\glui_img_spinup_dis.c" />
+    <ClCompile Include="GLUI\glui_img_uparrow.c" />
+    <ClCompile Include="GLUI\glui_list.cpp" />
+    <ClCompile Include="GLUI\glui_listbox.cpp" />
+    <ClCompile Include="GLUI\glui_mouse_iaction.cpp" />
+    <ClCompile Include="GLUI\glui_node.cpp" />
+    <ClCompile Include="GLUI\glui_panel.cpp" />
+    <ClCompile Include="GLUI\glui_radio.cpp" />
+    <ClCompile Include="GLUI\glui_rollout.cpp" />
+    <ClCompile Include="GLUI\glui_rotation.cpp" />
+    <ClCompile Include="GLUI\glui_scrollbar.cpp" />
+    <ClCompile Include="GLUI\glui_separator.cpp" />
+    <ClCompile Include="GLUI\glui_spinner.cpp" />
+    <ClCompile Include="GLUI\glui_statictext.cpp" />
+    <ClCompile Include="GLUI\glui_string.cpp" />
+    <ClCompile Include="GLUI\glui_textbox.cpp" />
+    <ClCompile Include="GLUI\glui_translation.cpp" />
+    <ClCompile Include="GLUI\glui_tree.cpp" />
+    <ClCompile Include="GLUI\glui_treepanel.cpp" />
+    <ClCompile Include="GLUI\glui_window.cpp" />
+    <ClCompile Include="GLUI\quaternion.cpp" />
+    <ClCompile Include="GLUI\viewmodel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Planet\Planet.cpp" />
     <ClCompile Include="Planet\SurfaceQuadTree.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Shader.cpp" />
+    <ClCompile Include="UI\UI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GLUI\algebra3.h" />
+    <ClInclude Include="GLUI\arcball.h" />
+    <ClInclude Include="GLUI\glui_internal.h" />
+    <ClInclude Include="GLUI\glui_internal_control.h" />
+    <ClInclude Include="GLUI\quaternion.h" />
+    <ClInclude Include="GLUI\viewmodel.h" />
     <ClInclude Include="Perlin\Perlin.h" />
     <ClInclude Include="Planet\Planet.h" />
     <ClInclude Include="Planet\PlanetProperties.h" />
@@ -138,8 +199,12 @@
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Shader.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="UI\UI.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="GLUI\glui_img_listbox_down.ppm" />
+    <None Include="GLUI\glui_img_listbox_up.ppm" />
+    <None Include="GLUI\glui_img_listbox_up_dis.ppm" />
     <None Include="Resources\Shaders\default_fragment.frag" />
     <None Include="Resources\Shaders\default_vertex.vs" />
     <None Include="Resources\Shaders\planet.frag" />

@@ -1,6 +1,7 @@
 #include "Planet.h"
 
 #include <iostream>
+#include <omp.h>
 
 
 Planet::~Planet()
@@ -18,13 +19,16 @@ Planet::Planet()
 	properties = PlanetProperties(6371000.0f, glm::vec3(0.0f));
 }
 
-Planet::Planet(float radius, glm::vec3 pos)
+Planet::Planet(std::string name, float radius, glm::vec3 pos)
 {
+	this->name = name;
 	properties = PlanetProperties(radius, pos);
 }
 
 void Planet::prepareObject()
 {
+	this->name = name;
+
 	// init all 6 faces as new trees
 	rootXYPos = new SurfaceQuadNode(&properties, QUAD_PLANE::XY, 1,
 		glm::vec3(-properties.sim_r, properties.sim_r, properties.sim_r),
@@ -60,7 +64,7 @@ void Planet::prepareObject()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER,  properties.vertices.size() * sizeof(float), properties.vertices.data(), GL_DYNAMIC_DRAW);
 
-	// position attribute 
+	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(0);
 
@@ -125,6 +129,10 @@ void Planet::draw()
 	GLint amplitudesLoc = glGetUniformLocation(shaderProgram, "amps");
 	glUniform1fv(amplitudesLoc, 5, properties.amplitudes);
 
+	GLint maxAltLoc = glGetUniformLocation(shaderProgram, "maxAlt");
+	glUniform1f(maxAltLoc, (properties.amplitudes[0] + properties.amplitudes[1] + properties.amplitudes[2]
+		+ properties.amplitudes[3] + properties.amplitudes[4]) * 2);
+
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, properties.vertices.size() * sizeof(glm::vec3), properties.vertices.data(), GL_DYNAMIC_DRAW);
@@ -141,4 +149,62 @@ void Planet::setCameraPos(glm::vec3 pos_m, glm::vec3 pos_M)
 GLuint Planet::getShaderProgram()
 {
 	return shaderProgram;
+}
+
+std::string Planet::getName()
+{
+	return name;
+}
+
+float Planet::getRadius()
+{
+	return properties.radius;
+}
+
+void Planet::setRadius(float r)
+{
+	properties.radius = r;
+}
+
+glm::vec3 Planet::getPosition()
+{
+	return properties.position;
+}
+
+void Planet::setPosition(float x, float y, float z)
+{
+	properties.position = glm::vec3(x, y, z);
+}
+
+float* Planet::getAmplitudes()
+{
+	return properties.amplitudes;
+}
+
+void Planet::setAmplitudes(float* values)
+{
+	properties.amplitudes[0] = values[0];
+	properties.amplitudes[1] = values[1];
+	properties.amplitudes[2] = values[2];
+	properties.amplitudes[3] = values[3];
+	properties.amplitudes[4] = values[4];
+}
+
+float* Planet::getPeriods()
+{
+	return properties.periods;
+}
+
+void Planet::setPeriods(float* values)
+{
+	properties.periods[0] = values[0];
+	properties.periods[1] = values[1];
+	properties.periods[2] = values[2];
+	properties.periods[3] = values[3];
+	properties.periods[4] = values[4];
+}
+
+unsigned long Planet::getPatchesNrToBeSent()
+{
+	return properties.vertices.size() / 4;
 }

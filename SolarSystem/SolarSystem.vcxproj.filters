@@ -19,6 +19,12 @@
     <Filter Include="Perlin">
       <UniqueIdentifier>{7566caea-7ff1-47ac-a6bc-8bce3d5b49a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{075cea8e-a555-406d-9b8d-a1896202685f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GLUI">
+      <UniqueIdentifier>{8e08fea3-c3b4-444c-b5d6-9bb98a21f133}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -35,6 +41,168 @@
     </ClCompile>
     <ClCompile Include="Planet\SurfaceQuadTree.cpp">
       <Filter>Planet</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\algebra3.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\arcball.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_add_controls.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_bitmap_img_data.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_bitmaps.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_button.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_checkbox.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_column.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_commandline.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_control.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_edittext.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_checkbox_0.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_checkbox_0_dis.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_checkbox_1.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_checkbox_1_dis.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_downarrow.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_leftarrow.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_listbox_down.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_listbox_up.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_listbox_up_dis.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_radiobutton_0.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_radiobutton_0_dis.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_radiobutton_1.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_radiobutton_1_dis.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_rightarrow.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_spindown_0.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_spindown_1.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_spindown_dis.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_spinup_0.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_spinup_1.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_spinup_dis.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_img_uparrow.c">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_list.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_listbox.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_mouse_iaction.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_node.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_panel.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_radio.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_rollout.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_rotation.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_scrollbar.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_separator.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_spinner.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_statictext.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_string.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_textbox.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_translation.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_tree.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_treepanel.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\glui_window.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\quaternion.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GLUI\viewmodel.cpp">
+      <Filter>GLUI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UI.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -65,6 +233,27 @@
     <ClInclude Include="Planet\SurfaceQuadTree.h">
       <Filter>Planet</Filter>
     </ClInclude>
+    <ClInclude Include="GLUI\algebra3.h">
+      <Filter>GLUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUI\arcball.h">
+      <Filter>GLUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUI\glui_internal.h">
+      <Filter>GLUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUI\glui_internal_control.h">
+      <Filter>GLUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUI\quaternion.h">
+      <Filter>GLUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUI\viewmodel.h">
+      <Filter>GLUI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\default_fragment.frag">
@@ -84,6 +273,15 @@
     </None>
     <None Include="Resources\Shaders\planet.tes">
       <Filter>Resources\Shaders</Filter>
+    </None>
+    <None Include="GLUI\glui_img_listbox_down.ppm">
+      <Filter>GLUI</Filter>
+    </None>
+    <None Include="GLUI\glui_img_listbox_up.ppm">
+      <Filter>GLUI</Filter>
+    </None>
+    <None Include="GLUI\glui_img_listbox_up_dis.ppm">
+      <Filter>GLUI</Filter>
     </None>
   </ItemGroup>
 </Project>

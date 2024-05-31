@@ -6,8 +6,8 @@
 
 static float interpolate(float a0, float a1, float w)
 {
-	//return (a1 - a0) * w + a0;
-	return ((a1 - a0) * (3.0 - w * 2.0) * w * w + a0);
+	return (a1 - a0) * w + a0;
+	//return ((a1 - a0) * (3.0 - w * 2.0) * w * w + a0);
 	//return (a1 - a0) * ((w * (w * 6.0 - 15.0) + 10.0) * w * w * w) + a0;
 }
 
@@ -60,6 +60,6 @@ static float perlin3(float x, float y, float z, int res)
 	ix1 = interpolate(iz2, iz3, sx);
 
 	value = interpolate(ix0, ix1, sy);
-	return value / res * 3.0f;
+	return value / res * 3.0f + 1.1f;
 }
 

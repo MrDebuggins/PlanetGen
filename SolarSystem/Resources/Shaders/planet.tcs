@@ -29,36 +29,34 @@ void main()
     if (gl_InvocationID == 0)
     {
         // inner level --------------------------------------------------
-        //vec3 p0 = normalize(gl_in[0].gl_Position.xyz) * radius;
-        //vec3 p1 = normalize(gl_in[1].gl_Position.xyz) * radius;
-        //vec3 p2 = normalize(gl_in[2].gl_Position.xyz) * radius;
-        //vec3 p3 = normalize(gl_in[3].gl_Position.xyz) * radius;
+        vec3 p0 = normalize(gl_in[0].gl_Position.xyz) * radius;
+        vec3 p1 = normalize(gl_in[1].gl_Position.xyz) * radius;
+        vec3 p2 = normalize(gl_in[2].gl_Position.xyz) * radius;
+        vec3 p3 = normalize(gl_in[3].gl_Position.xyz) * radius;
 
         // patch center
-        //vec3 c = vec3((p0.x+p1.x+p2.x+p3.x)/4, (p0.y+p1.y+p2.y+p3.y)/4, (p0.z+p1.z+p2.z+p3.z)/4);
-        //vec3 normCenter = normalize(c);
+        vec3 c = vec3((p0.x+p1.x+p2.x+p3.x)/4, (p0.y+p1.y+p2.y+p3.y)/4, (p0.z+p1.z+p2.z+p3.z)/4);
+        vec3 normCenter = normalize(c);
 
         // angle between patch-camera vector and patch-origin vector
-        //float b = PI - acos(dot(normalize((cameraPos_M - objPos - c) + cameraPos_m), normCenter));
+        float b = PI - acos(dot(normalize((cameraPos_M - objPos - c) + cameraPos_m), normCenter));
         
         uint lvlI = 15, lvlO = 1;
-
-        // inner level
-        //if(b < (PI / 4.0f))
-        //{
-        //    lvlI = 1;    
-        //}
-        //else
-        //{
-        //    lvlI = 15;
-        //}
-        lvlI = 15;
 
         // outer level
         float maxW = 512 / pow(2, currentMaxLOD), w = distance(gl_in[0].gl_Position.xyz, gl_in[1].gl_Position.xyz);
         lvlO = uint(w / maxW * 4);
         if(lvlO > 64)
             lvlO = 64;
+
+        // inner level
+        if(b < (PI / 2.5f))
+        {
+            lvlI = 1;
+            lvlO = 1;
+        }
+
+        lvlI = 8;
 
         gl_TessLevelOuter[0] = lvlO;
         gl_TessLevelOuter[1] = lvlO;

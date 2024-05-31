@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "RandableObj.h"
 #include "Planet/Planet.h"
 
@@ -67,11 +69,6 @@ public:
 	 */
 	void processKeyboard(unsigned char key, int x, int y, const bool state)
 	{
-		if (key == 'g')
-			Renderer::switchLineView(true);
-		if(key == 'h')
-			Renderer::switchLineView(false);
-
 		// update camera
 		camera.processKeyboard(static_cast<camera_movement>(key), 0.3f, state);
 	}
@@ -83,7 +80,7 @@ public:
 	 */
 	void processMouseMovement(const int x, const int y)
 	{
-		camera.processMouseMovement(x, y, false);
+		camera.processMouseMovement(x, y);
 	}
 
 	// TODO probably bind to camera speed
@@ -132,5 +129,32 @@ public:
 		}
 
 		glutSwapBuffers();
+	}
+
+	Planet* getPlanetById(int id)
+	{
+		return planets[id];
+	}
+
+	std::vector<std::string> getPlanetNames()
+	{
+		std::vector<std::string> names;
+		for(int i = 0; i < planets.size(); ++i)
+		{
+			names.push_back(planets[i]->getName());
+		}
+
+		return names;
+	}
+
+	unsigned long getPatchesToBeSentToGPU()
+	{
+		unsigned long nr = 0;
+		for(int i = 0; i < planets.size(); ++i)
+		{
+			nr += planets[i]->getPatchesNrToBeSent();
+		}
+
+		return nr;
 	}
 };

@@ -11,6 +11,7 @@ glm::mat4x4 Renderer::projectionMatrix = glm::perspective(PI / 4, windowW / wind
 glm::vec3 Renderer::lightPos;
 GLuint Renderer::defaultShaderProgram;
 Camera* Renderer::camera;
+bool Renderer::wireframe;
 
 
 void Renderer::init(Camera* c)
@@ -26,12 +27,12 @@ void Renderer::init(Camera* c)
 	glViewport(0, 0, windowW, windowH);
 
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(1, 1, 1, 0);
+	glClearColor(0, 0, 0, 0);
 
 	glewInit();
 
 	glEnable(GL_CULL_FACE);
-	glPolygonMode(GL_FRONT, GL_LINE);
+	glPolygonMode(GL_FRONT, GL_FILL);
 
 	// create default shadder program
 	defaultShaderProgram = Shader::createShaderProgram("Resources/Shaders/default_vertex.vs", "Resources/Shaders/default_fragment.frag");
@@ -80,10 +81,12 @@ glm::mat4x4 Renderer::getProjectionMatrix()
 	return projectionMatrix;
 }
 
-void Renderer::switchLineView(bool v)
+void Renderer::switchLineView()
 {
-	if(v)
+	if(!wireframe)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	wireframe = !wireframe;
 }

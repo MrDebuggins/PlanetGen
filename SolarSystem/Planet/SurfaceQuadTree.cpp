@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+
 const float coef_M = 1000000.0f;
 
 SurfaceQuadNode::SurfaceQuadNode(PlanetProperties* planet, QUAD_PLANE plane, int planeDirection, glm::vec3 corner, glm::vec3 center)
@@ -31,13 +32,13 @@ SurfaceQuadNode::SurfaceQuadNode(SurfaceQuadNode* parent, glm::vec3 topLeftCorne
 	switch (plane)
 	{
 	case QUAD_PLANE::XY:
-		center = glm::dvec3(topLeftCorner.x + width / 2.0f * planeDirection, topLeftCorner.y - width / 2.0f, planet->sim_r * planeDirection);
+		center = glm::vec3(topLeftCorner.x + width / 2.0f * planeDirection, topLeftCorner.y - width / 2.0f, planet->sim_r * planeDirection);
 		break;
 	case QUAD_PLANE::XZ:
-		center = glm::dvec3(topLeftCorner.x + width / 2.0f * planeDirection, planet->sim_r * planeDirection, topLeftCorner.z + width / 2.0f);
+		center = glm::vec3(topLeftCorner.x + width / 2.0f * planeDirection, planet->sim_r * planeDirection, topLeftCorner.z + width / 2.0f);
 		break;
 	case QUAD_PLANE::YZ:
-		center = glm::dvec3(planet->sim_r * planeDirection, topLeftCorner.y - width / 2.0f, topLeftCorner.z - width / 2.0f * planeDirection);
+		center = glm::vec3(planet->sim_r * planeDirection, topLeftCorner.y - width / 2.0f, topLeftCorner.z - width / 2.0f * planeDirection);
 		break;
 	}
 
@@ -78,16 +79,16 @@ void SurfaceQuadNode::split()
 	switch (plane)
 	{
 	case QUAD_PLANE::XY:
-		child1 = new SurfaceQuadNode(this, glm::dvec3(topLeftCorner.x, center.y, topLeftCorner.z));
-		child3 = new SurfaceQuadNode(this, glm::dvec3(center.x, topLeftCorner.y, topLeftCorner.z));
+		child1 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, center.y, topLeftCorner.z));
+		child3 = new SurfaceQuadNode(this, glm::vec3(center.x, topLeftCorner.y, topLeftCorner.z));
 		break;
 	case QUAD_PLANE::XZ:
-		child1 = new SurfaceQuadNode(this, glm::dvec3(topLeftCorner.x, topLeftCorner.y, center.z));
-		child3 = new SurfaceQuadNode(this, glm::dvec3(center.x, topLeftCorner.y, topLeftCorner.z));
+		child1 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, topLeftCorner.y, center.z));
+		child3 = new SurfaceQuadNode(this, glm::vec3(center.x, topLeftCorner.y, topLeftCorner.z));
 		break;
 	case QUAD_PLANE::YZ:
-		child1 = new SurfaceQuadNode(this, glm::dvec3(topLeftCorner.x, center.y, topLeftCorner.z));
-		child3 = new SurfaceQuadNode(this, glm::dvec3(topLeftCorner.x, topLeftCorner.y, center.z));
+		child1 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, center.y, topLeftCorner.z));
+		child3 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, topLeftCorner.y, center.z));
 		break;
 	}
 }
@@ -104,9 +105,9 @@ void SurfaceQuadNode::update()
 	float real_W = width * (planet->radius / planet->sim_r);
 
 	// distance to camera
-	float dist = glm::distance(glm::normalize(center) * (planet->radius + noise) + planet->position, coef_M * planet->cameraPos_M + planet->cameraPos_m);
+	float dist_M = glm::distance(glm::normalize(center) * (planet->radius + noise) + planet->position, coef_M * planet->cameraPos_M + planet->cameraPos_m);
 
-	const bool distCheck = (dist) < (real_W * planet->lodFactor);
+	const bool distCheck = (dist_M) < (real_W * planet->lodFactor);
 
 	if(!darkSide && distCheck && depth <= planet->maxLOD || depth < 3)
 	{

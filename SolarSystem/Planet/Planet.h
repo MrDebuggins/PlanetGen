@@ -8,6 +8,9 @@
 
 class Planet
 {
+	// planet name
+	std::string name;
+
 	// buffer identifiers
 	GLuint vbo;
 	GLuint vao;
@@ -31,7 +34,7 @@ public:
 
 	Planet();
 
-	Planet(float radius, glm::vec3 pos);
+	Planet(std::string name, float radius, glm::vec3 pos);
 
 	void prepareObject();
 
@@ -42,4 +45,24 @@ public:
 	void setCameraPos(glm::vec3 pos_m, glm::vec3 pos_M);
 
 	GLuint getShaderProgram();
+
+	std::string getName();
+
+	float getRadius();
+
+	void setRadius(float r);
+
+	glm::vec3 getPosition();
+
+	void setPosition(float x, float y, float z);
+
+	float* getAmplitudes();
+
+	void setAmplitudes(float* values);
+
+	float* getPeriods();
+
+	void setPeriods(float* values);
+
+	unsigned long getPatchesNrToBeSent();
 };

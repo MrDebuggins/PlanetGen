@@ -36,10 +36,10 @@ struct PlanetProperties
 	unsigned int currentMaxLOD = 0;
 
 	// periods (aka. resolution, inverse of frequency) 
-	float periods[5] = { 1, 10, 100, 10000, 5000000 };
+	float periods[5] = { 65536*2, 131072*2, 262164*2, 524288*2, 1048576*2 };
 
 	// amplitudes
-	float amplitudes[5] = { 0.5f, 5.0f, 50.0f, 1000.0f, 10000.0f };
+	float amplitudes[5] = { 6250.0f, 12500.0f, 25000.0f, 50000.0f, 100000.0f };
 
 	// planet position
 	glm::vec3 position = glm::vec3(0.0f);
@@ -63,7 +63,8 @@ struct PlanetProperties
 	PlanetProperties(const float radius, glm::vec3 pos)
 	{
 		this->radius = radius;
-		maxLOD = log2(10 * PI * radius) - 5;
+		//maxLOD = log2(10 * PI * radius) - 5;
+		maxLOD = log2(10 * PI * radius) - 3;
 
 		position = pos;
 	}

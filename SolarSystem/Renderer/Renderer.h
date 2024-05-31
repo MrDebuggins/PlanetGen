@@ -40,6 +40,9 @@ class Renderer
 	// camera used for rendering
 	static Camera* camera;
 
+	// wireframe mode
+	static bool wireframe;
+
 public:
 	~Renderer()
 	{
@@ -99,5 +102,5 @@ public:
 	 */
 	static glm::mat4x4 getProjectionMatrix();
 
-	static void switchLineView(bool v);
+	static void switchLineView();
 };

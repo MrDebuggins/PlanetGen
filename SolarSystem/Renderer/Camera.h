@@ -80,7 +80,7 @@ public:
      * \param yaw camera yaw
      * \param pitch camera pitch
      */
-    Camera(glm::vec3 pos_m = glm::vec3(3678299.0f, 3678299.0f, 3678299.0f), glm::vec3 up = glm::vec3(0.0, 1.0, 0.0), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
+    Camera(glm::vec3 pos_m = glm::vec3(3789299.0f, 3789299.0f, 3789299.0f), glm::vec3 up = glm::vec3(0.0, 1.0, 0.0), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
     {
         updatePosition(pos_m);
         worldUp = up;
@@ -177,7 +177,7 @@ public:
 
         // update Front, Right and Up Vectors using the updated Euler angles
         updateCameraVectors();
-        glutWarpPointer(w / 2, h / 2);
+    	glutWarpPointer(w / 2, h / 2);
     }
     
     /**
