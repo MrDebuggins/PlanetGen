@@ -92,6 +92,8 @@ void UI::initUI(Scene* s, int mainWindow)
 	modes = new GLUI_Listbox(noiseCtrl, "Mode:", &planet.mode, MODE_CTRL, planetFloats);
 	modes->add_item(0, "Default");
 	modes->add_item(1, "Ridged");
+	modes->add_item(2, "Sine");
+	modes->add_item(3, "Offset");
 
 	threshold = new GLUI_Spinner(noiseCtrl, "Threshold:", &planet.thresh, THR_CTRL, planetFloats);
 	threshold->set_float_val(scene->getPlanetById(0)->getThreshold());
