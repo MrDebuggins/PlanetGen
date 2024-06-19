@@ -11,6 +11,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
+#ifndef PI
+#define PI glm::pi<float>()
+#endif
+
 /**
  * \brief Defines several possible options for camera movement.
  * Used as abstraction to stay away from window-system specific input methods
@@ -31,7 +35,7 @@ constexpr float yaw_c = -90.0f;
 constexpr float pitch_c = 0.0f;
 constexpr float speed_c = 1.0f;
 constexpr float sensitivity_c = 0.1f;
-constexpr float zoom_c = 45.0f;
+constexpr float zoom_c = 1.0f;
 const float coef_M = 1000000.0f;
 
 /**
@@ -41,8 +45,14 @@ const float coef_M = 1000000.0f;
 class Camera
 {
 public:
-    // camera timer
-    time_t timer;
+    int w = 700;
+    int h = 400;
+
+    // projection matrix
+    glm::mat4x4 projectionMatrix;
+
+    //
+    float fovX, fovY = PI / 4;
 
     // camera Attributes
     glm::vec3 position_m = glm::vec3(0.0f); // meters
@@ -67,11 +77,6 @@ public:
 
     // camera buttons states ( w a s d r f)
     bool buttons[6]{ false,false,false,false,false,false };
-
-    std::chrono::high_resolution_clock::time_point lastUpdateTime;
-
-    int w = 700;
-    int h = 400;
     
     /**
      * \brief Constructor with vectors and default options.
@@ -80,13 +85,12 @@ public:
      * \param yaw camera yaw
      * \param pitch camera pitch
      */
-    Camera(glm::vec3 pos_m = glm::vec3(3789299.0f, 3789299.0f, 3789299.0f), glm::vec3 up = glm::vec3(0.0, 1.0, 0.0), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
+    Camera(glm::vec3 pos_m = glm::vec3(4799299.0f, 4799299.0f, 4799299.0f), glm::vec3 up = glm::vec3(0.0, 1.0, 0.0), float yaw = yaw_c, float pitch = pitch_c) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(speed_c), mouseSensitivity(sensitivity_c), zoom(zoom_c)
     {
         updatePosition(pos_m);
         worldUp = up;
         this->yawE = yaw;
         this->pitchE = pitch;
-        lastUpdateTime = std::chrono::high_resolution_clock::now();
         updateCameraVectors();
     }
 
@@ -96,20 +100,36 @@ public:
      */
     glm::mat4 getViewMatrix() const
     {
-        //glm::vec3 tmp = position + front;
-        //return glm::lookAt(position, tmp, up);
-
         return glm::lookAt(glm::vec3(0.0, 0.0, 0.0), front, up);
+    }
+
+    /**
+     * \brief Return max between two field of view values (most cases is X)
+     * \return field of view in radians
+     */
+    float getMaxFieldOfView()
+    {
+        return glm::max(fovX, fovY);
+    }
+
+    /**
+     * \brief Calculate new projection matrix with new zoom and/or aspect ratio
+     */
+    void updateProjectionMatrix()
+    {
+        float aspectRatio = float(w) / float(h);
+        fovY = PI / (4 * zoom);
+        fovX = 2 * glm::atan(glm::tan(fovY / 0.5f) * aspectRatio);
+        projectionMatrix = glm::perspective(fovY, aspectRatio, 0.1f, 10000000000.0f);
     }
     
     /**
      * \brief Processes input received from any keyboard input system.
      * Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
      * \param direction key pressed (w,a,s,d keys correspond to camera_movement enum members)
-     * \param delta_time time camera has been moving
      * \param state true if button pressed, false otherwise
      */
-    void processKeyboard(const camera_movement direction, const float delta_time, bool state)
+    void processKeyboard(const camera_movement direction, bool state)
     {
         if (direction == FORWARD)
             buttons[0] = state;
@@ -129,11 +149,13 @@ public:
             movementSpeed *= 2;
     }
 
-    void update()
+    /**
+     * \brief Update camera position
+     * \param dTime time passed since last update
+     */
+    void update(const float dTime)
     {
-        std::chrono::high_resolution_clock::time_point tmp = std::chrono::high_resolution_clock::now();
-        const float velocity = movementSpeed * std::chrono::duration_cast<std::chrono::duration<double>>(tmp - lastUpdateTime).count();
-        lastUpdateTime = tmp;
+        const float velocity = movementSpeed * dTime;
 
         if (buttons[0])
             updatePosition(front * velocity);
@@ -160,8 +182,8 @@ public:
         x -= static_cast<float>(w) / 2.0f;
         y -= static_cast<float>(h) / 2.0f;
 
-        yawE += x * mouseSensitivity;
-        pitchE += -y * mouseSensitivity;
+        yawE += x * mouseSensitivity / zoom;
+        pitchE += -y * mouseSensitivity / zoom;
 
         cursorX = x;
     	cursorY = y;
@@ -186,11 +208,13 @@ public:
      */
     void processMouseScroll(const float y_offset)
     {
-        movementSpeed -= static_cast<float>(y_offset);
+        zoom += y_offset;
         if (zoom < 1.0f)
             zoom = 1.0f;
         if (zoom > 45.0f)
             zoom = 45.0f;
+
+        updateProjectionMatrix();
     }
 
 private:

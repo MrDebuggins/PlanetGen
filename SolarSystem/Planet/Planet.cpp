@@ -16,13 +16,13 @@ Planet::~Planet()
 
 Planet::Planet()
 {
-	properties = PlanetProperties(6371000.0f, glm::vec3(0.0f));
+	properties = PlanetProperties(6371000.0f, glm::vec3(0.0f), nullptr);
 }
 
-Planet::Planet(std::string name, float radius, glm::vec3 pos)
+Planet::Planet(std::string name, float radius, glm::vec3 pos, Camera *camera)
 {
 	this->name = name;
-	properties = PlanetProperties(radius, pos);
+	properties = PlanetProperties(radius, pos, camera);
 }
 
 void Planet::prepareObject()
@@ -84,6 +84,11 @@ void Planet::update()
 	properties.vertices.clear();
 	properties.currentMaxLOD = 0;
 
+	//glm::vec3 tmp0 = properties.camera->position_M;
+	//glm::vec3 tmp1 = properties.camera->position_m;
+	//properties.camera->position_M = glm::vec3(4.00000048f, 4.4000001f, 3.70000076f);
+	//properties.camera->position_m = glm::vec3(-97579.3672f, -93891.6562f, -66706.25f);
+
 	rootXYPos->update();
 	rootXYNeg->update();
 
@@ -92,9 +97,14 @@ void Planet::update()
 
 	rootYZPos->update();
 	rootYZNeg->update();
+
+	//properties.camera->position_M = tmp0;
+	//properties.camera->position_m = tmp1;
+
+	properties.noiseCalculated = true;
 }
 
-void Planet::draw()
+void Planet::draw(glm::vec3 lightPos)
 {
 	GLint viewMat = glGetUniformLocation(shaderProgram, "view");
 	glUniformMatrix4fv(viewMat, 1, GL_FALSE, glm::value_ptr(Renderer::getViewMatrix()));
@@ -107,9 +117,9 @@ void Planet::draw()
 
 	// camera position
 	GLint cameraPosmLoc = glGetUniformLocation(shaderProgram, "cameraPos_m");
-	glUniform3fv(cameraPosmLoc, 1, glm::value_ptr(properties.cameraPos_m));
+	glUniform3fv(cameraPosmLoc, 1, glm::value_ptr(properties.camera->position_m));
 	GLint cameraPosMLoc = glGetUniformLocation(shaderProgram, "cameraPos_M");
-	glUniform3fv(cameraPosMLoc, 1, glm::value_ptr(1000000.0f * properties.cameraPos_M));
+	glUniform3fv(cameraPosMLoc, 1, glm::value_ptr(coef_M * properties.camera->position_M));
 
 	// object position
 	GLint posLoc = glGetUniformLocation(shaderProgram, "objPos");
@@ -128,22 +138,24 @@ void Planet::draw()
 	glUniform1fv(periodsLoc, 5, properties.periods);
 	GLint amplitudesLoc = glGetUniformLocation(shaderProgram, "amps");
 	glUniform1fv(amplitudesLoc, 5, properties.amplitudes);
-
+	
 	GLint maxAltLoc = glGetUniformLocation(shaderProgram, "maxAlt");
-	glUniform1f(maxAltLoc, (properties.amplitudes[0] + properties.amplitudes[1] + properties.amplitudes[2]
-		+ properties.amplitudes[3] + properties.amplitudes[4]) * 2);
+	glUniform1f(maxAltLoc, properties.maxAlt);
+
+	GLint threshLoc = glGetUniformLocation(shaderProgram, "thresh");
+	glUniform1f(threshLoc, properties.threshold);
+
+	GLint modeLoc = glGetUniformLocation(shaderProgram, "noiseMode");
+	glUniform1i(modeLoc, properties.mode);
+
+	GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
+	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
 
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, properties.vertices.size() * sizeof(glm::vec3), properties.vertices.data(), GL_DYNAMIC_DRAW);
 
 	glDrawArrays(GL_PATCHES, 0, properties.vertices.size());
-}
-
-void Planet::setCameraPos(glm::vec3 pos_m, glm::vec3 pos_M)
-{
-	properties.cameraPos_m = pos_m;
-	properties.cameraPos_M = pos_M;
 }
 
 GLuint Planet::getShaderProgram()
@@ -160,27 +172,35 @@ float Planet::getRadius()
 {
 	return properties.radius;
 }
-
 void Planet::setRadius(float r)
 {
 	properties.radius = r;
+	properties.noiseCalculated = false;
 }
 
 glm::vec3 Planet::getPosition()
 {
 	return properties.position;
 }
-
 void Planet::setPosition(float x, float y, float z)
 {
 	properties.position = glm::vec3(x, y, z);
+}
+
+float Planet::getLODFactor()
+{
+	return properties.lodFactor;
+}
+void Planet::setLODFactor(float f)
+{
+	properties.lodFactor = f;
+	properties.noiseCalculated = false;
 }
 
 float* Planet::getAmplitudes()
 {
 	return properties.amplitudes;
 }
-
 void Planet::setAmplitudes(float* values)
 {
 	properties.amplitudes[0] = values[0];
@@ -188,13 +208,16 @@ void Planet::setAmplitudes(float* values)
 	properties.amplitudes[2] = values[2];
 	properties.amplitudes[3] = values[3];
 	properties.amplitudes[4] = values[4];
+
+	properties.maxAlt = 2.0f * (values[0] + values[1] + values[2] + values[3] + values[4]);
+
+	properties.noiseCalculated = false;
 }
 
 float* Planet::getPeriods()
 {
 	return properties.periods;
 }
-
 void Planet::setPeriods(float* values)
 {
 	properties.periods[0] = values[0];
@@ -202,7 +225,35 @@ void Planet::setPeriods(float* values)
 	properties.periods[2] = values[2];
 	properties.periods[3] = values[3];
 	properties.periods[4] = values[4];
+
+	properties.noiseCalculated = false;
 }
+
+float Planet::getMaxAltitude()
+{
+	return properties.maxAlt;
+}
+
+float Planet::getThreshold()
+{
+	return properties.threshold;
+}
+void Planet::setThreshold(float thr)
+{
+	properties.threshold = thr;
+	properties.noiseCalculated = false;
+}
+
+int Planet::getNoiseMode()
+{
+	return properties.mode;
+}
+void Planet::setNoiseMode(int mode)
+{
+	properties.mode = mode;
+	properties.noiseCalculated = false;
+}
+
 
 unsigned long Planet::getPatchesNrToBeSent()
 {

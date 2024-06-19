@@ -7,7 +7,6 @@
 
 float Renderer::windowW = d_width;
 float Renderer::windowH = d_height;
-glm::mat4x4 Renderer::projectionMatrix = glm::perspective(PI / 4, windowW / windowH, 0.1f, 10000000000.0f);
 glm::vec3 Renderer::lightPos;
 GLuint Renderer::defaultShaderProgram;
 Camera* Renderer::camera;
@@ -60,10 +59,9 @@ void Renderer::reshape(const int w, const int h)
 
 	glViewport(0, 0, w, h);
 
-	projectionMatrix = glm::perspective(PI / 4, static_cast<float>(w) / static_cast<float>(h), 0.1f, 10000000000.0f);
-
 	camera->w = w;
 	camera->h = h;
+	camera->updateProjectionMatrix();
 }
 
 void Renderer::useShaderProgram(GLuint shaderProgram)
@@ -78,7 +76,7 @@ glm::mat4x4 Renderer::getViewMatrix()
 
 glm::mat4x4 Renderer::getProjectionMatrix()
 {
-	return projectionMatrix;
+	return camera->projectionMatrix;
 }
 
 void Renderer::switchLineView()

@@ -4,19 +4,16 @@
 #include <iostream>
 
 
-const float coef_M = 1000000.0f;
-
 SurfaceQuadNode::SurfaceQuadNode(PlanetProperties* planet, QUAD_PLANE plane, int planeDirection, glm::vec3 corner, glm::vec3 center)
 {
 	this->planet = planet;
 	this->plane = plane;
 	this->planeDirection = planeDirection;
-	topLeftCorner = corner;
+	corners.push_back(corner);
+	calcCorners();
 	width = planet->sim_r * 2.0f;
 	this->center = center;
 	depth = 0;
-
-	pushVertices();
 }
 
 SurfaceQuadNode::SurfaceQuadNode(SurfaceQuadNode* parent, glm::vec3 topLeftCorner)
@@ -26,7 +23,8 @@ SurfaceQuadNode::SurfaceQuadNode(SurfaceQuadNode* parent, glm::vec3 topLeftCorne
 	plane = parent->plane;
 	planeDirection = parent->planeDirection;
 	width = parent->width / 2.0f;
-	this->topLeftCorner = topLeftCorner;
+	corners.push_back(topLeftCorner);
+	calcCorners();
 	depth = parent->depth + 1;
 
 	switch (plane)
@@ -42,12 +40,7 @@ SurfaceQuadNode::SurfaceQuadNode(SurfaceQuadNode* parent, glm::vec3 topLeftCorne
 		break;
 	}
 
-	glm::vec3 realCenter = glm::normalize(center) * planet->radius + planet->position;
-	noise = planet->amplitudes[0] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[0]);
-	noise += planet->amplitudes[1] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[1]);
-	noise += planet->amplitudes[2] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[2]);
-	noise += planet->amplitudes[3] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[3]);
-	noise += planet->amplitudes[4] * perlin3(realCenter.x, realCenter.y, realCenter.z, planet->periods[4]);
+	calcNoise();
 }
 
 void SurfaceQuadNode::DestroyQuadTree(SurfaceQuadNode* node)
@@ -73,43 +66,47 @@ void SurfaceQuadNode::DestroyQuadTree(SurfaceQuadNode* node)
 
 void SurfaceQuadNode::split()
 {
-	child0 = new SurfaceQuadNode(this, topLeftCorner);
+	child0 = new SurfaceQuadNode(this, corners[0]);
 	child2 = new SurfaceQuadNode(this, center);
 
 	switch (plane)
 	{
 	case QUAD_PLANE::XY:
-		child1 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, center.y, topLeftCorner.z));
-		child3 = new SurfaceQuadNode(this, glm::vec3(center.x, topLeftCorner.y, topLeftCorner.z));
+		child1 = new SurfaceQuadNode(this, glm::vec3(corners[0].x, center.y, corners[0].z));
+		child3 = new SurfaceQuadNode(this, glm::vec3(center.x, corners[0].y, corners[0].z));
 		break;
 	case QUAD_PLANE::XZ:
-		child1 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, topLeftCorner.y, center.z));
-		child3 = new SurfaceQuadNode(this, glm::vec3(center.x, topLeftCorner.y, topLeftCorner.z));
+		child1 = new SurfaceQuadNode(this, glm::vec3(corners[0].x, corners[0].y, center.z));
+		child3 = new SurfaceQuadNode(this, glm::vec3(center.x, corners[0].y, corners[0].z));
 		break;
 	case QUAD_PLANE::YZ:
-		child1 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, center.y, topLeftCorner.z));
-		child3 = new SurfaceQuadNode(this, glm::vec3(topLeftCorner.x, topLeftCorner.y, center.z));
+		child1 = new SurfaceQuadNode(this, glm::vec3(corners[0].x, center.y, corners[0].z));
+		child3 = new SurfaceQuadNode(this, glm::vec3(corners[0].x, corners[0].y, center.z));
 		break;
 	}
 }
 
 void SurfaceQuadNode::update()
 {
-	if (depth > planet->currentMaxLOD)
-		planet->currentMaxLOD = depth;
+	if(!planet->noiseCalculated)
+		calcNoise();
 
-	// true if patch is in dark side of the planet
-	const bool darkSide = isInDarkSide();
+	glm::vec3 normalizedCenter = glm::normalize(center);
+	
+	glm::vec3 realCenter = normalizedCenter * planet->radius + (normalizedCenter * noise[0]);
+
+	// true if patch is behind the horizon
+	const bool behindHorizon = horizonTest(normalizedCenter * planet->radius);
 
 	// real planet radius
 	float real_W = width * (planet->radius / planet->sim_r);
 
 	// distance to camera
-	float dist_M = glm::distance(glm::normalize(center) * (planet->radius + noise) + planet->position, coef_M * planet->cameraPos_M + planet->cameraPos_m);
+	float dist_M = glm::distance(realCenter + planet->position, coef_M * planet->camera->position_M + planet->camera->position_m);
 
 	const bool distCheck = (dist_M) < (real_W * planet->lodFactor);
 
-	if(!darkSide && distCheck && depth <= planet->maxLOD || depth < 3)
+	if(!behindHorizon && distCheck && depth <= planet->maxLOD || depth < (4))
 	{
 		if (child0 == nullptr)
 		{
@@ -138,53 +135,109 @@ void SurfaceQuadNode::update()
 			child3 = nullptr;
 		}
 
-		pushVertices();
+		const bool inView = frustrumTest();
+		if (!behindHorizon && inView)
+			pushVertices(corners);
 	}
 }
 
-void SurfaceQuadNode::pushDoubleToFloat(glm::dvec3 p)
+void SurfaceQuadNode::calcCorners()
 {
-	double pxH, pxL, pyH, pyL, pzH, pzL;
-
-	pxL = std::modf(p.x, &pxH);
-	pyL = std::modf(p.y, &pyH);
-	pzL = std::modf(p.z, &pzH);
-
-	planet->vertices.push_back(glm::vec3(pxH, pyH, pzH));
-	planet->vertices.push_back(glm::vec3(pxL, pyL, pzL));
-}
-
-void SurfaceQuadNode::pushVertices()
-{
-	planet->vertices.push_back(topLeftCorner);
+	glm::vec3 topLeftCorner = corners[0];
 
 	switch (plane)
 	{
 	case QUAD_PLANE::XY:
-		planet->vertices.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y - width, topLeftCorner.z));
-		planet->vertices.push_back(glm::vec3(topLeftCorner.x + width * planeDirection, topLeftCorner.y, topLeftCorner.z));
-		planet->vertices.push_back(glm::vec3(topLeftCorner.x + width * planeDirection, topLeftCorner.y - width, topLeftCorner.z));
+		corners.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y - width, topLeftCorner.z));
+		corners.push_back(glm::vec3(topLeftCorner.x + width * planeDirection, topLeftCorner.y, topLeftCorner.z));
+		corners.push_back(glm::vec3(topLeftCorner.x + width * planeDirection, topLeftCorner.y - width, topLeftCorner.z));
 		break;
 	case QUAD_PLANE::XZ:
-		planet->vertices.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y, topLeftCorner.z + width));
-		planet->vertices.push_back(glm::vec3(topLeftCorner.x + width * planeDirection, topLeftCorner.y, topLeftCorner.z));
-		planet->vertices.push_back(glm::vec3(topLeftCorner.x + width * planeDirection, topLeftCorner.y, topLeftCorner.z + width));
+		corners.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y, topLeftCorner.z + width));
+		corners.push_back(glm::vec3(topLeftCorner.x + width * planeDirection, topLeftCorner.y, topLeftCorner.z));
+		corners.push_back(glm::vec3(topLeftCorner.x + width * planeDirection, topLeftCorner.y, topLeftCorner.z + width));
 		break;
 	case QUAD_PLANE::YZ:
-		planet->vertices.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y - width, topLeftCorner.z));
-		planet->vertices.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y, topLeftCorner.z - width * planeDirection));
-		planet->vertices.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y - width, topLeftCorner.z - width * planeDirection));
+		corners.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y - width, topLeftCorner.z));
+		corners.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y, topLeftCorner.z - width * planeDirection));
+		corners.push_back(glm::vec3(topLeftCorner.x, topLeftCorner.y - width, topLeftCorner.z - width * planeDirection));
 		break;
 	}
 }
 
-bool SurfaceQuadNode::isInDarkSide()
+void SurfaceQuadNode::pushVertices(std::vector<glm::vec3> corners)
 {
-	glm::dvec3 cam = (1000000.0f * planet->cameraPos_M - planet->position) + planet->cameraPos_m;
-	glm::vec3 worldCoordsCenter = center - planet->position;
+	if (depth > planet->currentMaxLOD)
+		planet->currentMaxLOD = depth;
 
-	double axb = cam.x * worldCoordsCenter.x + cam.y * worldCoordsCenter.y + cam.z * worldCoordsCenter.z;
-
-	return (axb < 0);
+	planet->vertices.push_back(corners[0]);
+	planet->vertices.push_back(corners[1]);
+	planet->vertices.push_back(corners[2]);
+	planet->vertices.push_back(corners[3]);
 }
 
+bool SurfaceQuadNode::horizonTest(glm::vec3 p)
+{
+	glm::vec3 a = (coef_M * planet->camera->position_M - planet->position - p) + planet->camera->position_m;
+	double axb = PI - glm::acos(glm::dot(glm::normalize(a), glm::normalize(p)));
+	return (axb < (PI / 2.2));
+}
+
+bool SurfaceQuadNode::frustrumTest()
+{
+	bool visible = false;
+
+	// top left corner test
+	glm::vec3 pNorm = glm::normalize(corners[1]);
+	glm::vec3 p = pNorm * planet->radius;
+	pNorm *= noise[1];
+	glm::vec3 a = planet->camera->front;
+	glm::vec3 b = glm::normalize((p + planet->position - coef_M * planet->camera->position_M) - planet->camera->position_m + pNorm);
+	double axb = glm::acos(glm::dot(a, b));
+	visible = visible || (axb < (planet->camera->getMaxFieldOfView()));
+	//visible = visible || (axb < (PI / 8));
+
+	// second corner
+	pNorm = glm::normalize(corners[1]);
+	p = pNorm * planet->radius;
+	pNorm *= noise[2];
+	b = glm::normalize((p + planet->position - coef_M * planet->camera->position_M) - planet->camera->position_m + pNorm);
+	axb = glm::acos(glm::dot(a, b));
+	visible = visible || (axb < (planet->camera->getMaxFieldOfView()));
+	//visible = visible || (axb < (PI / 8));
+
+	// third corner
+	pNorm = glm::normalize(corners[2]);
+	p = pNorm * planet->radius;
+	pNorm *= noise[3];
+	b = glm::normalize((p + planet->position - coef_M * planet->camera->position_M) - planet->camera->position_m + pNorm);
+	axb = glm::acos(glm::dot(a, b));
+	visible = visible || (axb < (planet->camera->getMaxFieldOfView()));
+	//visible = visible || (axb < (PI / 8));
+
+	// fourth corner
+	pNorm = glm::normalize(corners[3]);
+	p = pNorm * planet->radius;
+	pNorm *= noise[4];
+	b = glm::normalize((p + planet->position - coef_M * planet->camera->position_M) - planet->camera->position_m + pNorm);
+	axb = glm::acos(glm::dot(a, b));
+	visible = visible || (axb < (planet->camera->getMaxFieldOfView()));
+	//visible = visible || (axb < (PI / 8));
+
+	return visible;
+}
+
+void SurfaceQuadNode::calcNoise()
+{
+	noise[0] = 0.0f; noise[1] = 0.0f; noise[2] = 0.0f; noise[3] = 0.0f; noise[4] = 0.0f;
+
+	glm::vec3 p = glm::normalize(center) * planet->radius;
+	noise[0] = perlin5Layers(p.x, p.y, p.z, planet->periods, planet->amplitudes, planet->maxAlt, planet->threshold, planet->mode);
+
+	for(int j = 0; j < 4; ++j)
+	{
+		p = glm::normalize(corners[j]) * planet->radius;
+
+		noise[j + 1] = perlin5Layers(p.x, p.y, p.z, planet->periods, planet->amplitudes, planet->maxAlt, planet->threshold, planet->mode);
+	}
+}

@@ -34,13 +34,13 @@ public:
 
 	Planet();
 
-	Planet(std::string name, float radius, glm::vec3 pos);
+	Planet(std::string name, float radius, glm::vec3 pos, Camera *camera);
 
 	void prepareObject();
 
 	void update();
 
-	void draw();
+	void draw(glm::vec3 lightPos);
 
 	void setCameraPos(glm::vec3 pos_m, glm::vec3 pos_M);
 
@@ -49,20 +49,27 @@ public:
 	std::string getName();
 
 	float getRadius();
-
 	void setRadius(float r);
 
 	glm::vec3 getPosition();
-
 	void setPosition(float x, float y, float z);
 
-	float* getAmplitudes();
+	float getLODFactor();
+	void setLODFactor(float f);
 
+	float* getAmplitudes();
 	void setAmplitudes(float* values);
 
 	float* getPeriods();
-
 	void setPeriods(float* values);
+
+	float getMaxAltitude();
+
+	float getThreshold();
+	void setThreshold(float thr);
+
+	int getNoiseMode();
+	void setNoiseMode(int mode);
 
 	unsigned long getPatchesNrToBeSent();
 };

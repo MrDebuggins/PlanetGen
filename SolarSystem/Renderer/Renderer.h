@@ -31,9 +31,6 @@ class Renderer
 	// default shader program
 	static GLuint defaultShaderProgram;
 
-	// rendering matrices
-	static glm::mat4 projectionMatrix;
-
 	// light source position
 	static glm::vec3 lightPos;
 

@@ -28,7 +28,7 @@ public:
 	float planeDirection;
 
 	// top left corner used for calculating the rest if needed
-	glm::vec3 topLeftCorner;
+	std::vector<glm::vec3> corners;
 
 	// quad width
 	float width;
@@ -36,8 +36,8 @@ public:
 	// quad center
 	glm::vec3 center;
 
-	// noise value
-	float noise = 0.0f;
+	// control points noise (corners and center)
+	float noise[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 	// node LOD (0 - root, face of the basic cube)
 	unsigned int depth;
@@ -83,9 +83,13 @@ public:
 
 	void update();
 
-	void pushDoubleToFloat(glm::dvec3 p);
+	void calcCorners();
 
-	void pushVertices();
+	void pushVertices(std::vector<glm::vec3> corners);
 
-	bool isInDarkSide();
+	bool horizonTest(glm::vec3 p);
+
+	bool frustrumTest();
+
+	void calcNoise();
 };

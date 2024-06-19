@@ -5,6 +5,8 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/constants.hpp>
 
+#include "Camera.h"
+
 
 #ifndef PI
 #define PI glm::pi<float>()
@@ -36,19 +38,27 @@ struct PlanetProperties
 	unsigned int currentMaxLOD = 0;
 
 	// periods (aka. resolution, inverse of frequency) 
-	float periods[5] = { 65536*2, 131072*2, 262164*2, 524288*2, 1048576*2 };
+	float periods[5] = { 65536, 131072, 262164, 524288, 1048576 };
 
 	// amplitudes
-	float amplitudes[5] = { 6250.0f, 12500.0f, 25000.0f, 50000.0f, 100000.0f };
+	float amplitudes[5] = { 12500.0f, 25000.0f, 50000.0f, 100000.0f, 200000.0f };
+
+	float maxAlt = 2.0f * (12500.0f + 25000.0f + 50000.0f + 100000.0f + 200000.0f);
+
+	// threshold
+	float threshold = 0.5;
+
+	// noise mode
+	int mode = 0;
+
+	// check if noise needs to be recalculated
+	bool noiseCalculated = false;
 
 	// planet position
 	glm::vec3 position = glm::vec3(0.0f);
 
-	// camera position in meters
-	glm::vec3 cameraPos_m = glm::vec3(0.0f);
-
-	// camera position in mega meters
-	glm::vec3 cameraPos_M = glm::vec3(0.0f);
+	// camera reference
+	Camera* camera = nullptr;
 
 	PlanetProperties()
 	{
@@ -59,13 +69,14 @@ struct PlanetProperties
 	/**
 	 * \brief Constructor with radius parameter, based on it maxLOD will be calculated
 	 * \param radius planet radius
+	 * \param pos planet position
+	 * \param camera camera reference
 	 */
-	PlanetProperties(const float radius, glm::vec3 pos)
+	PlanetProperties(const float radius, glm::vec3 pos, Camera *camera)
 	{
 		this->radius = radius;
-		//maxLOD = log2(10 * PI * radius) - 5;
 		maxLOD = log2(10 * PI * radius) - 3;
-
 		position = pos;
+		this->camera = camera;
 	}
 };

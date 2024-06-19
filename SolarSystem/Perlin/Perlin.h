@@ -6,8 +6,8 @@
 
 static float interpolate(float a0, float a1, float w)
 {
-	return (a1 - a0) * w + a0;
-	//return ((a1 - a0) * (3.0 - w * 2.0) * w * w + a0);
+	//return (a1 - a0) * w + a0;
+	return (a1 - a0) * (3.0 - w * 2.0) * w * w + a0;
 	//return (a1 - a0) * ((w * (w * 6.0 - 15.0) + 10.0) * w * w * w) + a0;
 }
 
@@ -25,7 +25,12 @@ static float dotGridGradient3(int ix, int iy, int iz, float x, float y, float z)
 	return glm::dot(dist, gradient);
 }
 
-static float perlin3(float x, float y, float z, int res)
+static float ridgeTransform(float h)
+{
+	return abs(h - 0.5f) * 2.0f;
+}
+
+static float perlin3(float x, float y, float z, float res, float ampl, int mode)
 {
 	int x0 = int(res * floor(x / res));
 	int x1 = x0 + res;
@@ -60,6 +65,22 @@ static float perlin3(float x, float y, float z, int res)
 	ix1 = interpolate(iz2, iz3, sx);
 
 	value = interpolate(ix0, ix1, sy);
-	return value / res * 3.0f + 1.1f;
+	value = ((value / res) * 3.0f + 1.1f);
+
+	if (mode == 1)
+		value = ridgeTransform(value);
+	
+	return value * ampl;
 }
 
+static float perlin5Layers(float x, float y, float z, float *res, float *ampl, float maxAlt, float thresh, int mode)
+{
+	float perlin = 0;
+	for (int i = 0; i < 5; ++i)
+		perlin += perlin3(x, y, z, res[i], ampl[i], mode);
+
+	if (perlin < (maxAlt * thresh))
+		return maxAlt * thresh;
+
+	return perlin;
+}

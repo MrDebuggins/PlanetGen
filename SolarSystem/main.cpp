@@ -3,6 +3,7 @@
 #include "Planet/Planet.h"
 #include <GL/freeglut_ext.h>
 
+#include "Perlin.h"
 #include "UI/UI.h"
 
 
@@ -13,12 +14,17 @@ extern "C" {
 
 int mainWindow, controlsWindow;
 auto lastTime = std::chrono::high_resolution_clock::now();
+float timer1 = 0;
+float frameTime = 0;
 
 Scene scene = Scene();
 
 
 static void processKeyboardPress(const unsigned char key, const int x, const int y)
 {
+	if (key == 'h')
+		UI::hide();
+
 	scene.processKeyboard(key, x, y, true);
 }
 
@@ -30,6 +36,11 @@ static void processKeyboardRelease(const unsigned char key, const int x, const i
 static void processMouseMove(const int x, const int y)
 {
 	scene.processMouseMovement(x, y);
+}
+
+static void processMouseWheel(int btn, int direction, int x, int y)
+{
+	scene.processMouseWheel(direction);
 }
 
 static void reshape(const int w, const int h)
@@ -51,12 +62,26 @@ static void update()
 {
 	if (glutGetWindow() != mainWindow)
 		glutSetWindow(mainWindow);
-	scene.update();
-	glutPostRedisplay();
 
-	float frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTime).count() / 1000000.0;
-	UI::setStats(1 / frameTime, frameTime, scene.getPatchesToBeSentToGPU());
+	frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTime).count() / 1000000.0;
 	lastTime = std::chrono::high_resolution_clock::now();
+
+	scene.update(frameTime);
+
+	UI::setPatchesNr(scene.getPatchesToBeSentToGPU());
+	timer1 += frameTime;
+	if(timer1 > 0.5)
+	{
+		UI::setStats(1 / frameTime, frameTime);
+		timer1 = 0;
+	}
+
+	// test code _________________________________________
+	float d = glm::length(coef_M * scene.camera.position_M + scene.camera.position_m);
+	UI::setTest(scene.testFunc(), d);
+	// test code _________________________________________
+
+	glutPostRedisplay();
 }
 
 int main(int argc, char** argv)
@@ -75,6 +100,7 @@ int main(int argc, char** argv)
 	glutDisplayFunc(display);
 	glutKeyboardUpFunc(processKeyboardRelease);
 	glutPassiveMotionFunc(processMouseMove);
+	glutMouseWheelFunc(processMouseWheel);
 
 	// register glui callbacks
 	GLUI_Master.set_glutReshapeFunc(Renderer::reshape);
@@ -83,8 +109,7 @@ int main(int argc, char** argv)
 
 	// add objects to scene
 	scene.initRenderer();
-	Planet test = Planet("Earth", 6371000.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-	//Planet test = Planet("Earth", 2.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+	Planet test = Planet("Earth", 6371000.0f, glm::vec3(0.0f, 0.0f, 0.0f), &scene.camera);
 	scene.addPlanet(&test);
 	RandableObj lmao;
 	scene.addObject(&lmao);

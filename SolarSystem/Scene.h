@@ -4,15 +4,11 @@
 
 #include "RandableObj.h"
 #include "Planet/Planet.h"
+#include "Perlin/Perlin.h"
 
 
 class Scene
 {
-	/**
-	 * \brief Default camera
-	 */
-	Camera camera;
-
 	// celestial objects, mostly planets
 	std::vector<Planet*> planets = std::vector<Planet*>();
 
@@ -20,12 +16,14 @@ class Scene
 	std::vector<RandableObj*> meshes = std::vector<RandableObj*>();
 
 	// Static sun-like light source (to be implemented)
-	const glm::vec3 lightPos = glm::vec3(-10000000.0, 10000000.0, static_cast<float>(3e11));
-
-	// Time since last scene update
-	float lastUpdateTime = 0;
+	const glm::vec3 lightPos = glm::vec3(-10000000, 10000000, 10000000);
 
 public:
+	/**
+	 * \brief Default camera
+	 */
+	Camera camera;
+
 	~Scene()
 	{
 		meshes.clear();
@@ -56,7 +54,6 @@ public:
 	void addPlanet(Planet* p)
 	{
 		p->prepareObject();
-		p->setCameraPos(camera.position_m, camera.position_M);
 		planets.push_back(p);
 	}
 
@@ -70,7 +67,7 @@ public:
 	void processKeyboard(unsigned char key, int x, int y, const bool state)
 	{
 		// update camera
-		camera.processKeyboard(static_cast<camera_movement>(key), 0.3f, state);
+		camera.processKeyboard(static_cast<camera_movement>(key), state);
 	}
 
 	/**
@@ -83,16 +80,22 @@ public:
 		camera.processMouseMovement(x, y);
 	}
 
-	// TODO probably bind to camera speed
-	void processMouseWheel(){}
+	/**
+	 * \brief Process mouse scroll
+	 * \param direction scroll direction
+	 */
+	void processMouseWheel(int direction)
+	{
+		camera.processMouseScroll(direction);
+	}
 
 	/**
 	 * \brief Update scene components
 	 */
-	void update()
+	void update(const float dTime)
 	{
 		// update camera
-		camera.update();
+		camera.update(dTime);
 
 		// update meshes
 		for (RandableObj* obj : meshes)
@@ -104,7 +107,6 @@ public:
 		// update planets
 		for(Planet* p : planets)
 		{
-			p->setCameraPos(camera.position_m, camera.position_M);
 			p->update();
 		}
 	}
@@ -125,7 +127,7 @@ public:
 		for(Planet* p : planets)
 		{
 			Renderer::useShaderProgram(p->getShaderProgram());
-			p->draw();
+			p->draw(lightPos);
 		}
 
 		glutSwapBuffers();
@@ -156,5 +158,17 @@ public:
 		}
 
 		return nr;
+	}
+
+	// TODO delete
+	float testFunc()
+	{
+		glm::vec3 p = coef_M * camera.position_M + camera.position_m;
+		glm::vec3 norm = glm::normalize(p);
+		glm::vec3 sph = norm * planets[0]->getRadius();
+		float noise = perlin5Layers(sph.x, sph.y, sph.z, planets[0]->getPeriods(), 
+			planets[0]->getAmplitudes(), planets[0]->getMaxAltitude(), planets[0]->getThreshold(), planets[0]->getNoiseMode());
+
+		return glm::length(sph + norm * noise);
 	}
 };
