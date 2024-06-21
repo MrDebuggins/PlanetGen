@@ -16,16 +16,12 @@ GLUI_Spinner* UI::planetPosY;
 GLUI_Spinner* UI::planetPosZ;
 GLUI_Spinner* UI::lodfactor;
 
-GLUI_Spinner* UI::layer0Ampl;
-GLUI_Spinner* UI::layer1Ampl;
-GLUI_Spinner* UI::layer2Ampl;
-GLUI_Spinner* UI::layer3Ampl;
-GLUI_Spinner* UI::layer4Ampl;
-GLUI_Spinner* UI::layer0Res;
-GLUI_Spinner* UI::layer1Res;
-GLUI_Spinner* UI::layer2Res;
-GLUI_Spinner* UI::layer3Res;
-GLUI_Spinner* UI::layer4Res;
+GLUI_Spinner* UI::layersNr;
+GLUI_Spinner* UI::baseAmpl;
+GLUI_Spinner* UI::baseRes;
+GLUI_Spinner* UI::persistence;
+GLUI_Spinner* UI::lacunarity;
+
 
 GLUI_Spinner* UI::threshold;
 GLUI_Listbox* UI::modes;
@@ -94,63 +90,38 @@ void UI::initUI(Scene* s, int mainWindow)
 	modes->add_item(1, "Ridged");
 	modes->add_item(2, "Sine");
 	modes->add_item(3, "Offset");
+	modes->add_item(4, "Offset + Ridged");
+	modes->add_item(5, "Sine + Ridged");
 
 	threshold = new GLUI_Spinner(noiseCtrl, "Threshold:", &planet.thresh, THR_CTRL, planetFloats);
 	threshold->set_float_val(scene->getPlanetById(0)->getThreshold());
 	threshold->set_speed(5);
 	threshold->set_float_limits(0, 1);
 
-	layersCtrl = new GLUI_Rollout(noiseCtrl, "Layers:", false);
+	layersNr = new GLUI_Spinner(noiseCtrl, "Nr:", &planet.layers, LAYER_CTRL, planetFloats);
+	layersNr->set_speed(1);
+	layersNr->set_int_limits(1, 10);
+	layersNr->set_int_val(scene->getPlanetById(0)->getNoiseLayers());
 
-	// layer 0
-	layer0Ampl = new GLUI_Spinner(layersCtrl, "A0:", &planet.ampl0, LAYER_CTRL, planetFloats);
-	layer0Ampl->set_speed(1);
-	//layer0Ampl->set_float_limits(0, 1000);
-	layer0Ampl->set_float_val(scene->getPlanetById(0)->getAmplitudes()[0] / spinFactor);
-	layer0Res = new GLUI_Spinner(layersCtrl, "R0:", &planet.res0, LAYER_CTRL, planetFloats);
-	layer0Res->set_speed(1);
-	//layer0Res->set_float_limits(1, 1000);
-	layer0Res->set_float_val(scene->getPlanetById(0)->getPeriods()[0] / spinFactor);
+	// amplitude
+	baseAmpl = new GLUI_Spinner(noiseCtrl, "Ampl:", &planet.ampl, LAYER_CTRL, planetFloats);
+	baseAmpl->set_speed(1);
+	//baseAmpl->set_float_limits(0, 1000);
+	baseAmpl->set_float_val(scene->getPlanetById(0)->getBaseAmplitude() / spinFactor);
+	persistence = new GLUI_Spinner(noiseCtrl, "Pers:", &planet.pers, LAYER_CTRL, planetFloats);
+	persistence->set_speed(1);
+	//persistence->set_float_limits(1, 1000);
+	persistence->set_float_val(scene->getPlanetById(0)->getPersistence());
 
-	// layer 1
-	layer1Ampl = new GLUI_Spinner(layersCtrl, "A1:", &planet.ampl1, LAYER_CTRL, planetFloats);
-	layer1Ampl->set_speed(1);
-	//layer1Ampl->set_float_limits(0, 1000);
-	layer1Ampl->set_float_val(scene->getPlanetById(0)->getAmplitudes()[1] / spinFactor);
-	layer1Res = new GLUI_Spinner(layersCtrl, "R1:", &planet.res1, LAYER_CTRL, planetFloats);
-	layer1Res->set_speed(1);
-	//layer1Res->set_float_limits(1, 1000);
-	layer1Res->set_float_val(scene->getPlanetById(0)->getPeriods()[1] / spinFactor);
-
-	// layer 2
-	layer2Ampl = new GLUI_Spinner(layersCtrl, "A2:", &planet.ampl2, LAYER_CTRL, planetFloats);
-	layer2Ampl->set_speed(1);
-	//layer2Ampl->set_float_limits(0, 1000);
-	layer2Ampl->set_float_val(scene->getPlanetById(0)->getAmplitudes()[2] / spinFactor);
-	layer2Res = new GLUI_Spinner(layersCtrl, "R2:", &planet.res2, LAYER_CTRL, planetFloats);
-	layer2Res->set_speed(1);
-	//layer2Res->set_float_limits(1, 1000);
-	layer2Res->set_float_val(scene->getPlanetById(0)->getPeriods()[2] / spinFactor);
-
-	// layer 3
-	layer3Ampl = new GLUI_Spinner(layersCtrl, "A3:", &planet.ampl3, LAYER_CTRL, planetFloats);
-	layer3Ampl->set_speed(1);
-	//layer3Ampl->set_float_limits(0, 1000);
-	layer3Ampl->set_float_val(scene->getPlanetById(0)->getAmplitudes()[3] / spinFactor);
-	layer3Res = new GLUI_Spinner(layersCtrl, "R3:", &planet.res3, LAYER_CTRL, planetFloats);
-	layer3Res->set_speed(1);
-	//layer3Res->set_float_limits(1, 1000);
-	layer3Res->set_float_val(scene->getPlanetById(0)->getPeriods()[3] / spinFactor);
-
-	// layer 4
-	layer4Ampl = new GLUI_Spinner(layersCtrl, "A4:", &planet.ampl4, LAYER_CTRL, planetFloats);
-	layer4Ampl->set_speed(1);
-	//layer4Ampl->set_float_limits(0, 1000);
-	layer4Ampl->set_float_val(scene->getPlanetById(0)->getAmplitudes()[4] / spinFactor);
-	layer4Res = new GLUI_Spinner(layersCtrl, "R4:", &planet.res4, LAYER_CTRL, planetFloats);
-	layer4Res->set_speed(1);
-	//layer4Res->set_float_limits(1, 1000);
-	layer4Res->set_float_val(scene->getPlanetById(0)->getPeriods()[4] / spinFactor);
+	// resolution
+	baseRes = new GLUI_Spinner(noiseCtrl, "Res:", &planet.res, LAYER_CTRL, planetFloats);
+	baseRes->set_speed(1);
+	//baseRes->set_float_limits(0, 1000);
+	baseRes->set_float_val(scene->getPlanetById(0)->getBaseResolution() / spinFactor);
+	lacunarity = new GLUI_Spinner(noiseCtrl, "Lac:", &planet.lac, LAYER_CTRL, planetFloats);
+	lacunarity->set_speed(1);
+	//lacunarity->set_float_limits(1, 1000);
+	lacunarity->set_float_val(scene->getPlanetById(0)->getLacunarity());
 
 
 	new GLUI_Checkbox(glui, "Wireframe", &wireframe, 1, wireframeCB);

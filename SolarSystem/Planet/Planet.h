@@ -57,11 +57,22 @@ public:
 	float getLODFactor();
 	void setLODFactor(float f);
 
-	float* getAmplitudes();
-	void setAmplitudes(float* values);
+	void calcMaxAltitude();
 
-	float* getPeriods();
-	void setPeriods(float* values);
+	int getNoiseLayers();
+	void setNoiseLayers(int nr);
+
+	float getBaseAmplitude();
+	void setBaseAmplitude(float val);
+
+	float getPersistence();
+	void setPersistence(float val);
+
+	float getBaseResolution();
+	void setBaseResolution(float val);
+
+	float getLacunarity();
+	void setLacunarity(float val);
 
 	float getMaxAltitude();
 

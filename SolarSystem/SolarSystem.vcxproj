@@ -198,6 +198,7 @@
     <ClInclude Include="Renderer\RandableObj.h" />
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Shader.h" />
+    <ClInclude Include="Renderer\TestObj.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="UI\UI.h" />
   </ItemGroup>

@@ -3,6 +3,8 @@
 #include <iostream>
 #include <omp.h>
 
+#include "Perlin.h"
+
 
 Planet::~Planet()
 {
@@ -134,11 +136,19 @@ void Planet::draw(glm::vec3 lightPos)
 	glUniform1ui(lodLoc, properties.currentMaxLOD);
 
 	// noise properties
-	GLint periodsLoc = glGetUniformLocation(shaderProgram, "periods");
-	glUniform1fv(periodsLoc, 5, properties.periods);
-	GLint amplitudesLoc = glGetUniformLocation(shaderProgram, "amps");
-	glUniform1fv(amplitudesLoc, 5, properties.amplitudes);
-	
+	GLint layerLoc = glGetUniformLocation(shaderProgram, "layers");
+	glUniform1i(layerLoc, properties.layers);
+
+	GLint amplLoc = glGetUniformLocation(shaderProgram, "baseAmpl");
+	glUniform1f(amplLoc, properties.amplitude);
+	GLint persLoc = glGetUniformLocation(shaderProgram, "pers");
+	glUniform1f(persLoc, properties.persistence);
+
+	GLint resLoc = glGetUniformLocation(shaderProgram, "baseRes");
+	glUniform1f(resLoc, properties.resolution);
+	GLint lacLoc = glGetUniformLocation(shaderProgram, "lac");
+	glUniform1f(lacLoc, properties.lacunarity);
+
 	GLint maxAltLoc = glGetUniformLocation(shaderProgram, "maxAlt");
 	glUniform1f(maxAltLoc, properties.maxAlt);
 
@@ -197,34 +207,85 @@ void Planet::setLODFactor(float f)
 	properties.noiseCalculated = false;
 }
 
-float* Planet::getAmplitudes()
+void Planet::calcMaxAltitude()
 {
-	return properties.amplitudes;
-}
-void Planet::setAmplitudes(float* values)
-{
-	properties.amplitudes[0] = values[0];
-	properties.amplitudes[1] = values[1];
-	properties.amplitudes[2] = values[2];
-	properties.amplitudes[3] = values[3];
-	properties.amplitudes[4] = values[4];
+	float val = properties.amplitude;
+	properties.maxAlt = 0.0f;
+	for (int i = 0; i < properties.layers; ++i)
+	{
+		properties.maxAlt += val;
+		val /= properties.persistence;
+	}
+	properties.maxAlt *= 2;
 
-	properties.maxAlt = 2.0f * (values[0] + values[1] + values[2] + values[3] + values[4]);
+	switch (properties.mode)
+	{
+	case 1 || 4:
+		properties.maxAlt *= ridgeTransform(1.0f);
+		break;
+	case 2:
+		properties.maxAlt *= sineTransform(PI / 2.0f);
+		break;
+	}
+}
+
+int Planet::getNoiseLayers()
+{
+	return properties.layers;
+}
+void Planet::setNoiseLayers(int nr)
+{
+	properties.layers = nr;
+
+	calcMaxAltitude();
 
 	properties.noiseCalculated = false;
 }
 
-float* Planet::getPeriods()
+float Planet::getBaseAmplitude()
 {
-	return properties.periods;
+	return properties.amplitude;
 }
-void Planet::setPeriods(float* values)
+void Planet::setBaseAmplitude(float val)
 {
-	properties.periods[0] = values[0];
-	properties.periods[1] = values[1];
-	properties.periods[2] = values[2];
-	properties.periods[3] = values[3];
-	properties.periods[4] = values[4];
+	properties.amplitude = val;
+
+	calcMaxAltitude();
+
+	properties.noiseCalculated = false;
+}
+
+float Planet::getPersistence()
+{
+	return properties.persistence;
+}
+void Planet::setPersistence(float val)
+{
+	properties.persistence = val;
+
+	calcMaxAltitude();
+
+	properties.noiseCalculated = false;
+}
+
+float Planet::getBaseResolution()
+{
+	return properties.resolution;
+}
+void Planet::setBaseResolution(float val)
+{
+	properties.resolution = val;
+
+	properties.noiseCalculated = false;
+}
+
+float Planet::getLacunarity()
+{
+	return properties.lacunarity;
+}
+void Planet::setLacunarity(float val)
+{
+	properties.lacunarity = val;
 
 	properties.noiseCalculated = false;
 }
@@ -251,9 +312,11 @@ int Planet::getNoiseMode()
 void Planet::setNoiseMode(int mode)
 {
 	properties.mode = mode;
+
+	calcMaxAltitude();
+
 	properties.noiseCalculated = false;
 }
-
 
 unsigned long Planet::getPatchesNrToBeSent()
 {

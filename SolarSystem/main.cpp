@@ -4,6 +4,7 @@
 #include <GL/freeglut_ext.h>
 
 #include "Perlin.h"
+#include "TestObj.h"
 #include "UI/UI.h"
 
 
@@ -111,8 +112,8 @@ int main(int argc, char** argv)
 	scene.initRenderer();
 	Planet test = Planet("Earth", 6371000.0f, glm::vec3(0.0f, 0.0f, 0.0f), &scene.camera);
 	scene.addPlanet(&test);
-	RandableObj lmao;
-	scene.addObject(&lmao);
+	//RandableObj* lmao = new TestObj();
+	//scene.addObject(lmao);
 
 	// init glui
 	UI::initUI(&scene, mainWindow);

@@ -11,8 +11,11 @@ uniform vec3 cameraPos_M;      // camera position in mega meters
 
 uniform vec3 objPos;		  // object position in meters
 uniform float radius;         // planet radius
-uniform float[5] periods;	  // layers resoulutions
-uniform float[5] amps;	      // layers amplitudes
+uniform int layers;			  // layers number
+uniform float baseAmpl;		  // base amplitude
+uniform float pers;			  // amplitude persistence
+uniform float baseRes;	      // base resoulution
+uniform float lac;			  // resolution lacunarity
 uniform float maxAlt;		  // max altitude
 uniform float thresh;		  // threshold
 uniform int noiseMode;		  // noise mode
@@ -24,12 +27,14 @@ out vec3 cameraPos;
 out int spec;
 
 vec3 color1 = vec3(0.2588, 0.1254, 0.0039);
+//vec3 color1 = vec3(0.5, 0, 0);
 vec3 color2 = vec3(0.0627, 0.4588, 0.0039);
+//vec3 color2 = vec3(0, 0.5, 0);
 vec3 color3 = vec3(0.0041, 0.1568, 0.3411);
 
 float coefs[] = {1.0, 1.0, 1.0, 1.0, 1.0};
 
-#define PI 3.1415926535897932384626433832795
+#define PI 3.141592
 
 float interpolate(float a0, float a1, float w)
 {
@@ -38,14 +43,30 @@ float interpolate(float a0, float a1, float w)
 	//return (a1 - a0) * ((w * (w * 6.0 - 15.0) + 10.0) * w * w * w) + a0;
 }
 
+int FK(float k)
+{
+	return floatBitsToInt(k) ^ floatBitsToInt(cos(k));
+}
+
+float hash(float a, float b)
+{
+    int x = FK(a); int y = FK(b);
+    return float((x*x+y)*(y*y-x)+x)/float(2.14e9);
+}
+
 // https://www.shadertoy.com/view/4djSRW
 ///  3 out, 3 in...
 vec3 hash33(vec3 p3)
 {
+	//float seed = hash(p3.x, hash(p3.y, p3.z));
+	//float h1 = hash(seed, seed);
+    //float h2 = hash(h1, seed);
+    //float h3 = hash(h2, seed);
+    //return vec3(h1,h2,h3);
+
 	p3 = fract(p3 * vec3(.10310973, .10301031, .09731030));
     p3 += dot(p3, p3.yxz+33.33);
     return fract((p3.xxy + p3.yxx)*p3.zyx);
-
 }
 
 float dotGridGradient3(float ix, float iy, float iz, float x, float y, float z)
@@ -58,6 +79,11 @@ float dotGridGradient3(float ix, float iy, float iz, float x, float y, float z)
 float ridgeTransform(float h)
 {
 	return abs(h - 0.5f) * 2.0f;
+}
+
+float sineTransform(float h)
+{
+	return sin(PI*(h - 1/2)/2 + 1/2) * 1.2;
 }
 
 float perlinAux(float x, float y, float z, float res, float ampl)
@@ -95,16 +121,16 @@ float perlinAux(float x, float y, float z, float res, float ampl)
 	ix1 = interpolate(iz2, iz3, sx);
 
 	value = interpolate(ix0, ix1, sy);
-	value = ((value / res) * 3.0 + 1.1);
+	value = ((value / res) * 3.0f + 1.1f);
 
 	return value * ampl;
 }
 
 float perlin3(float x, float y, float z, float res, float ampl)
 {
-	if(noiseMode == 3)
+	if(noiseMode == 3 || noiseMode == 4)
 	{
-		float tmp = perlinAux(x, y, z, 20000, 2000);
+		float tmp = perlinAux(x, y, z, baseRes * 2, baseAmpl * 24);
 		x += tmp;
 		y += tmp;
 		z += tmp;
@@ -143,25 +169,30 @@ float perlin3(float x, float y, float z, float res, float ampl)
 	ix1 = interpolate(iz2, iz3, sx);
 
 	value = interpolate(ix0, ix1, sy);
-	value = ((value / res) * 3.0 + 1.1);
+	value = ((value / res) * 3.0f + 1.1f);
 
-	if(noiseMode == 0)
-		value = value;
-	if(noiseMode == 1)
+	if(noiseMode == 1 || noiseMode == 4)
 		value = ridgeTransform(value);
 	if(noiseMode == 2)
-		value = sin(PI*(value - 1/2)/2 + 1/2) * 1.2;
+		value = sineTransform(value);
+	if(noiseMode == 5)
+		value = value;
 
 	return value * ampl;
 }
 
 float perlin5Layers(vec3 vertex)
 {
-	float perlin = perlin3(vertex.x, vertex.y, vertex.z, periods[0], amps[0] * coefs[0]);
-	perlin += perlin3(vertex.x, vertex.y, vertex.z, periods[1], amps[1] * coefs[1]);
-	perlin += perlin3(vertex.x, vertex.y, vertex.z, periods[2], amps[2] * coefs[2]);
-	perlin += perlin3(vertex.x, vertex.y, vertex.z, periods[3], amps[3] * coefs[3]);
-	perlin += perlin3(vertex.x, vertex.y, vertex.z, periods[4], amps[4] * coefs[4]);
+	float ampl = baseAmpl;
+	float res = baseRes;
+
+	float perlin = 0;
+	for(int i = 0; i < layers; ++i)
+	{
+		perlin += perlin3(vertex.x, vertex.y, vertex.z, res, ampl);
+		ampl /= pers;
+		res /= lac;
+	}
 
 	if(perlin < (maxAlt * thresh))
 		return maxAlt * thresh;
@@ -169,7 +200,7 @@ float perlin5Layers(vec3 vertex)
 	return perlin;
 }
 
-void calcColor(float perlin)
+void calcColor(float perlin, vec3 pr)
 {
 	if(perlin <= (thresh * maxAlt))
 	{
@@ -178,6 +209,8 @@ void calcColor(float perlin)
 	}
 	else
 	{
+		//float a = acos(dot(normal, pr)) / 0.9;
+		//color = a * color1 + (1-a)*color2;
 		float a = perlin / maxAlt;
 		vec3 b = vec3(a+0.3, a-0.3, a);
 		color = color1 * a + (1 - a) * color2;
@@ -188,9 +221,12 @@ void calcColor(float perlin)
 
 vec3 calcVertexNormal(vec4 p00, vec4 p01, vec4 p10, vec4 p11, float u, float v)
 {
-	float u0 = u + 0.0625;
-	float u1 = u - 0.0625;
-	float v0 = v - 0.0625;
+	float delta = 0.0625;
+	if(distance(normalize(p00) * radius, normalize(p01) * radius) < 100)
+		delta = 8;
+	float u0 = u + delta;
+	float u1 = u - delta;
+	float v0 = v - delta;
 
 	// sample point 0 (u0, v)
 	vec4 p0 = (p01 - p00) * u0 + p00;
@@ -220,34 +256,6 @@ vec3 calcVertexNormal(vec4 p00, vec4 p01, vec4 p10, vec4 p11, float u, float v)
 	vec3 B = s2 - s1;
 
 	return normalize(cross(A, B));
-}
-
-vec3 calcNormal(vec3 p)
-{
-	dvec3 p1 = normalize(dvec3(p) + dvec3(160, 160, 0));
-	dvec3 p2 = normalize(dvec3(p) + dvec3(0, 160, 160));
-	p1 = p1 * double(radius) + dvec3(perlin5Layers(vec3(p1) * radius)) * p1;
-	p2 = p2 * double(radius) + dvec3(perlin5Layers(vec3(p2) * radius)) * p2;
-
-	return vec3(normalize(cross(p1 - p2, p - p1)));
-}
-
-vec3 calcPatchNormal(vec3 p00, vec3 p01, vec3 p10)
-{
-	p00 = normalize(p00);
-	p01 = normalize(p01);
-	p10 = normalize(p10);
-	vec3 p00s = p00 * radius;
-	vec3 p01s = p01 * radius;
-	vec3 p10s = p10 * radius;
-	p00 = p00 * (1 + perlin5Layers(p00s)) + objPos;
-	p01 = p01 * (1 + perlin5Layers(p01s)) + objPos;
-	p10 = p10 * (1 + perlin5Layers(p10s)) + objPos;
-
-	vec3 a = p01 - p00;
-	vec3 b = p10 - p01;
-
-	return normalize(cross(a, b));
 }
 
 void main()
@@ -280,21 +288,6 @@ void main()
 	// vertex normal
 	normal =  calcVertexNormal(p00, p01, p10, p11, u, v);
 
-
-
-
-	//float an = PI - acos(dot(normal, vec3(normalized)));
-	//float tst = an / PI / 2;
-	//coefs[0] *= tst;
-	//coefs[1] *= tst;
-	//coefs[2] *= tst;
-	//coefs[3] *= tst;
-	//coefs[4] *= tst;
-
-
-
-
-
 	// perlin noise
 	float perlin = perlin5Layers(vec3(spherified));
 	vec3 noise = vec3(normalized) * perlin;
@@ -304,8 +297,9 @@ void main()
 	//p.xyz = vec3((spherified + objPos - cameraPos_M) - cameraPos_m) + noise;
 
 	// fragment shader data
-	calcColor(perlin);
-	//color = vec3(tst, 0, 0);
+	calcColor(perlin, vec3(normalized));
+	//float c = perlin / maxAlt;
+	//color = vec3(c, c, c);
 	fragPos = vec3(spherified) + objPos + noise;
 	cameraPos = cameraPos_M + cameraPos_m;
 	normal = 0.5 * normal + 0.5 * vec3(normalized);

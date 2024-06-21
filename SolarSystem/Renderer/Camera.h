@@ -12,7 +12,7 @@
 
 
 #ifndef PI
-#define PI glm::pi<float>()
+#define PI 3.141592
 #endif
 
 /**
@@ -109,7 +109,7 @@ public:
      */
     float getMaxFieldOfView()
     {
-        return glm::max(fovX, fovY);
+        return glm::max(fovX*0.25f, fovY);
     }
 
     /**

@@ -16,7 +16,7 @@ class Scene
 	std::vector<RandableObj*> meshes = std::vector<RandableObj*>();
 
 	// Static sun-like light source (to be implemented)
-	const glm::vec3 lightPos = glm::vec3(-10000000, 10000000, 10000000);
+	const glm::vec3 lightPos = glm::vec3(-1000000000, 1000000000, 1000000000);
 
 public:
 	/**
@@ -100,7 +100,7 @@ public:
 		// update meshes
 		for (RandableObj* obj : meshes)
 		{
-			obj->setCameraPos(camera.position_m + 1000000.0f * camera.position_M);
+			obj->setCameraPos(camera.position_m + coef_M * camera.position_M);
 			obj->update();
 		}
 
@@ -166,8 +166,9 @@ public:
 		glm::vec3 p = coef_M * camera.position_M + camera.position_m;
 		glm::vec3 norm = glm::normalize(p);
 		glm::vec3 sph = norm * planets[0]->getRadius();
-		float noise = perlin5Layers(sph.x, sph.y, sph.z, planets[0]->getPeriods(), 
-			planets[0]->getAmplitudes(), planets[0]->getMaxAltitude(), planets[0]->getThreshold(), planets[0]->getNoiseMode());
+		float noise = perlin5Layers(sph.x, sph.y, sph.z, planets[0]->getNoiseLayers(), planets[0]->getBaseAmplitude(), 
+			planets[0]->getPersistence(), planets[0]->getBaseResolution(), planets[0]->getLacunarity(), 
+			planets[0]->getMaxAltitude(), planets[0]->getThreshold(), planets[0]->getNoiseMode());
 
 		return glm::length(sph + norm * noise);
 	}

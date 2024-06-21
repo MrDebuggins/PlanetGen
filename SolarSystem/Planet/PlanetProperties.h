@@ -37,11 +37,20 @@ struct PlanetProperties
 	// maximum level of detail for current camera position
 	unsigned int currentMaxLOD = 0;
 
-	// periods (aka. resolution, inverse of frequency) 
-	float periods[5] = { 65536, 131072, 262164, 524288, 1048576 };
+	// perlin noise layers
+	int layers = 5;
 
-	// amplitudes
-	float amplitudes[5] = { 12500.0f, 25000.0f, 50000.0f, 100000.0f, 200000.0f };
+	// base amplitude
+	float amplitude = 200000.0f;
+
+	// base resolution
+	float resolution = 2000000.0f;
+
+	// amplitude persistence
+	float persistence = 2.0f;
+
+	// resolution lacunarity
+	float lacunarity = 2.0f;
 
 	float maxAlt = 2.0f * (12500.0f + 25000.0f + 50000.0f + 100000.0f + 200000.0f);
 

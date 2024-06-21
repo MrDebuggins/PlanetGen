@@ -87,8 +87,6 @@ public:
 	 */
 	virtual void draw()
 	{
-		glBindVertexArray(vao);
-
 		// object transformations
 		GLint modelMatrix = glGetUniformLocation(shaderProgram, "model");
 		glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
@@ -108,6 +106,13 @@ public:
 		// object position
 		GLint posLoc = glGetUniformLocation(shaderProgram, "pos");
 		glUniform3fv(posLoc, 1, glm::value_ptr(position));
+
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, primitives.size() * sizeof(unsigned int), primitives.data(), GL_STATIC_DRAW);
 
 		glDrawElements(GL_TRIANGLES, primitives.size(), GL_UNSIGNED_INT, nullptr);
 	}

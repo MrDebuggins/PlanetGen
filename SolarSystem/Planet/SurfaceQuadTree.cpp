@@ -170,6 +170,10 @@ void SurfaceQuadNode::pushVertices(std::vector<glm::vec3> corners)
 	if (depth > planet->currentMaxLOD)
 		planet->currentMaxLOD = depth;
 
+	//planet->vertices.push_back(glm::normalize(corners[0]) * (planet->radius + noise[1]));
+	//planet->vertices.push_back(glm::normalize(corners[1]) * (planet->radius + noise[2]));
+	//planet->vertices.push_back(glm::normalize(corners[2]) * (planet->radius + noise[3]));
+	//planet->vertices.push_back(glm::normalize(corners[3]) * (planet->radius + noise[4]));
 	planet->vertices.push_back(corners[0]);
 	planet->vertices.push_back(corners[1]);
 	planet->vertices.push_back(corners[2]);
@@ -188,7 +192,7 @@ bool SurfaceQuadNode::frustrumTest()
 	bool visible = false;
 
 	// top left corner test
-	glm::vec3 pNorm = glm::normalize(corners[1]);
+	glm::vec3 pNorm = glm::normalize(corners[0]);
 	glm::vec3 p = pNorm * planet->radius;
 	pNorm *= noise[1];
 	glm::vec3 a = planet->camera->front;
@@ -232,12 +236,14 @@ void SurfaceQuadNode::calcNoise()
 	noise[0] = 0.0f; noise[1] = 0.0f; noise[2] = 0.0f; noise[3] = 0.0f; noise[4] = 0.0f;
 
 	glm::vec3 p = glm::normalize(center) * planet->radius;
-	noise[0] = perlin5Layers(p.x, p.y, p.z, planet->periods, planet->amplitudes, planet->maxAlt, planet->threshold, planet->mode);
+	noise[0] = perlin5Layers(p.x, p.y, p.z, planet->layers, planet->amplitude, planet->persistence, 
+		planet->resolution, planet->lacunarity, planet->maxAlt, planet->threshold, planet->mode);
 
 	for(int j = 0; j < 4; ++j)
 	{
 		p = glm::normalize(corners[j]) * planet->radius;
 
-		noise[j + 1] = perlin5Layers(p.x, p.y, p.z, planet->periods, planet->amplitudes, planet->maxAlt, planet->threshold, planet->mode);
+		noise[j + 1] = perlin5Layers(p.x, p.y, p.z, planet->layers, planet->amplitude, planet->persistence,
+			planet->resolution, planet->lacunarity, planet->maxAlt, planet->threshold, planet->mode);
 	}
 }
