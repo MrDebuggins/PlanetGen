@@ -183,6 +183,7 @@ float perlin3(float x, float y, float z, float res, float ampl)
 
 float perlin5Layers(vec3 vertex)
 {
+	return 0;
 	float ampl = baseAmpl;
 	float res = baseRes;
 
