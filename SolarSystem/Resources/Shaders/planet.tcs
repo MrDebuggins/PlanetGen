@@ -18,25 +18,19 @@ float cubeR = 256.0f;
 
 void main()
 {
-    float PI = 3.1415927410125732421875f;
-
-    // ----------------------------------------------------------------------
-    // pass attributes through
+    // pass to next stage
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 
-    // ----------------------------------------------------------------------
-    // invocation zero controls tessellation levels for the entire patch
+    // calculate parameters for only one invocation
     if (gl_InvocationID == 0)
     {
-        uint lvlI = 15, lvlO = 1;
+        uint lvlI = 8, lvlO = 1;
 
         // outer level
         float maxW = 512 / pow(2, currentMaxLOD), w = distance(gl_in[0].gl_Position.xyz, gl_in[1].gl_Position.xyz);
         lvlO = uint(w / maxW * 4);
         if(lvlO > 64)
             lvlO = 64;
-
-        lvlI = 8;
 
         gl_TessLevelOuter[0] = lvlO;
         gl_TessLevelOuter[1] = lvlO;

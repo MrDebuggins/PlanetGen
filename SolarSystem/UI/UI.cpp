@@ -28,7 +28,8 @@ GLUI_Listbox* UI::modes;
 
 GLUI_StaticText* UI::fpsCounter;
 GLUI_StaticText* UI::frameTime;
-GLUI_StaticText* UI::patches;
+GLUI_StaticText* UI::patchesCPU;
+GLUI_StaticText* UI::patchesGPU;
 GLUI_StaticText* UI::dist;
 GLUI_StaticText* UI::alt;
 
@@ -79,7 +80,7 @@ void UI::initUI(Scene* s, int mainWindow)
 
 	lodfactor = new GLUI_Spinner(planetCtrl, "LOD factor:", &planet.lod, LOD_CTRL, planetFloats);
 	lodfactor->set_speed(10);
-	lodfactor->set_float_limits(2, 16);
+	lodfactor->set_float_limits(1.1f, 16.0f);
 	lodfactor->set_float_val(scene->getPlanetById(0)->getLODFactor());
 
 	// noise layers
@@ -91,7 +92,6 @@ void UI::initUI(Scene* s, int mainWindow)
 	modes->add_item(2, "Sine");
 	modes->add_item(3, "Offset");
 	modes->add_item(4, "Offset + Ridged");
-	modes->add_item(5, "Sine + Ridged");
 
 	threshold = new GLUI_Spinner(noiseCtrl, "Threshold:", &planet.thresh, THR_CTRL, planetFloats);
 	threshold->set_float_val(scene->getPlanetById(0)->getThreshold());
@@ -104,21 +104,21 @@ void UI::initUI(Scene* s, int mainWindow)
 	layersNr->set_int_val(scene->getPlanetById(0)->getNoiseLayers());
 
 	// amplitude
-	baseAmpl = new GLUI_Spinner(noiseCtrl, "Ampl:", &planet.ampl, LAYER_CTRL, planetFloats);
+	baseAmpl = new GLUI_Spinner(noiseCtrl, "Amplitude:", &planet.ampl, LAYER_CTRL, planetFloats);
 	baseAmpl->set_speed(1);
 	//baseAmpl->set_float_limits(0, 1000);
 	baseAmpl->set_float_val(scene->getPlanetById(0)->getBaseAmplitude() / spinFactor);
-	persistence = new GLUI_Spinner(noiseCtrl, "Pers:", &planet.pers, LAYER_CTRL, planetFloats);
+	persistence = new GLUI_Spinner(noiseCtrl, "AmplDivider:", &planet.pers, LAYER_CTRL, planetFloats);
 	persistence->set_speed(1);
 	//persistence->set_float_limits(1, 1000);
 	persistence->set_float_val(scene->getPlanetById(0)->getPersistence());
 
 	// resolution
-	baseRes = new GLUI_Spinner(noiseCtrl, "Res:", &planet.res, LAYER_CTRL, planetFloats);
+	baseRes = new GLUI_Spinner(noiseCtrl, "Resolution:", &planet.res, LAYER_CTRL, planetFloats);
 	baseRes->set_speed(1);
 	//baseRes->set_float_limits(0, 1000);
 	baseRes->set_float_val(scene->getPlanetById(0)->getBaseResolution() / spinFactor);
-	lacunarity = new GLUI_Spinner(noiseCtrl, "Lac:", &planet.lac, LAYER_CTRL, planetFloats);
+	lacunarity = new GLUI_Spinner(noiseCtrl, "ResDivider:", &planet.lac, LAYER_CTRL, planetFloats);
 	lacunarity->set_speed(1);
 	//lacunarity->set_float_limits(1, 1000);
 	lacunarity->set_float_val(scene->getPlanetById(0)->getLacunarity());
@@ -127,7 +127,8 @@ void UI::initUI(Scene* s, int mainWindow)
 	new GLUI_Checkbox(glui, "Wireframe", &wireframe, 1, wireframeCB);
 	fpsCounter = new GLUI_StaticText(glui, "FPS");
 	frameTime = new GLUI_StaticText(glui, "FrameTime");
-	patches = new GLUI_StaticText(glui, "PathcesGPU");
+	patchesCPU = new GLUI_StaticText(glui, "PathcesCPU");
+	patchesGPU = new GLUI_StaticText(glui, "PathcesGPU");
 	dist = new GLUI_StaticText(glui, "dist");
 	alt = new GLUI_StaticText(glui, "alt");
 
@@ -152,11 +153,15 @@ void UI::setStats(float fps, float frTime)
 	frameTime->set_text(str.c_str());
 }
 
-void UI::setPatchesNr(int patchesN)
+void UI::setPatchesNr(unsigned int cpuPatches, unsigned int gpuPatches)
 {
-	std::string str = "GPU patches: ";
-	str += std::to_string(patchesN);
-	patches->set_text(str.c_str());
+	std::string str = "CPU patches: ";
+	str += std::to_string(cpuPatches);
+	patchesCPU->set_text(str.c_str());
+
+	str = "GPU patches: ";
+	str += std::to_string(gpuPatches);
+	patchesGPU->set_text(str.c_str());
 }
 
 

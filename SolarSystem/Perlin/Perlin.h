@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include "math.h"
 
 
@@ -12,7 +11,6 @@ static float interpolate(float a0, float a1, float w)
 {
 	//return (a1 - a0) * w + a0;
 	return (a1 - a0) * (3.0 - w * 2.0) * w * w + a0;
-	//return (a1 - a0) * ((w * (w * 6.0 - 15.0) + 10.0) * w * w * w) + a0;
 }
 
 static int FK(float k)
@@ -103,7 +101,6 @@ static float perlin3(float x, float y, float z, float res, float ampl, float bas
 		float tmp = perlinAux(x, y, z, baseRes * 2, baseAmpl * 24);
 		x += tmp;
 		y += tmp;
-		z += tmp;
 	}
 
 	float x0 = int(res * floor(x / res));
@@ -145,8 +142,6 @@ static float perlin3(float x, float y, float z, float res, float ampl, float bas
 		value = ridgeTransform(value);
 	if (mode == 2)
 		value = sineTransform(value);
-	if (mode == 5)
-		value = value;
 
 	return value * ampl;
 }

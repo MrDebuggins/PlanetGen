@@ -149,15 +149,19 @@ public:
 		return names;
 	}
 
-	unsigned long getPatchesToBeSentToGPU()
+
+
+	void getPatches(unsigned int *cpu, unsigned int *gpu)
 	{
-		unsigned long nr = 0;
+		unsigned int c = 0, g = 0;
 		for(int i = 0; i < planets.size(); ++i)
 		{
-			nr += planets[i]->getPatchesNrToBeSent();
+			c += planets[i]->getPatchesNrProcessed();
+			g += planets[i]->getPatchesNrToBeSent();
 		}
 
-		return nr;
+		*cpu = c;
+		*gpu = g;
 	}
 
 	// TODO delete

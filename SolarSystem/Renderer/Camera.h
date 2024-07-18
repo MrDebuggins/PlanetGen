@@ -109,7 +109,7 @@ public:
      */
     float getMaxFieldOfView()
     {
-        return glm::max(fovX*0.25f, fovY);
+        return glm::max(fovX, fovY)*0.8f;
     }
 
     /**
@@ -119,7 +119,7 @@ public:
     {
         float aspectRatio = float(w) / float(h);
         fovY = PI / (4 * zoom);
-        fovX = 2 * glm::atan(glm::tan(fovY / 0.5f) * aspectRatio);
+        fovX = 2 * glm::atan(glm::tan(fovY * 0.5f) * aspectRatio);
         projectionMatrix = glm::perspective(fovY, aspectRatio, 0.1f, 10000000000.0f);
     }
     

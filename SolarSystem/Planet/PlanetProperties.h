@@ -69,10 +69,13 @@ struct PlanetProperties
 	// camera reference
 	Camera* camera = nullptr;
 
+	// number of patchesGPU processed
+	unsigned long nrPatches = 0;
+
 	PlanetProperties()
 	{
 		radius = 6371000.0f;
-		maxLOD = log2(10 * PI * radius) - 5;
+		maxLOD = log2(10 * PI * radius) - 3;
 	}
 
 	/**

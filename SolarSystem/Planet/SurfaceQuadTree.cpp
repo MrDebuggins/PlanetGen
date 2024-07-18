@@ -88,6 +88,8 @@ void SurfaceQuadNode::split()
 
 void SurfaceQuadNode::update()
 {
+	++planet->nrPatches;
+
 	if(!planet->noiseCalculated)
 		calcNoise();
 

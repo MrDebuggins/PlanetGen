@@ -254,9 +254,6 @@
     <ClInclude Include="UI\UI.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\TestObj.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\default_fragment.frag">

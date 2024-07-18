@@ -82,5 +82,6 @@ public:
 	int getNoiseMode();
 	void setNoiseMode(int mode);
 
-	unsigned long getPatchesNrToBeSent();
+	unsigned int getPatchesNrProcessed();
+	unsigned int getPatchesNrToBeSent();
 };

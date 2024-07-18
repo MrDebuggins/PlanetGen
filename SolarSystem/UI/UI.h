@@ -53,7 +53,8 @@ class UI
 
 	static GLUI_StaticText* fpsCounter;
 	static GLUI_StaticText* frameTime;
-	static GLUI_StaticText* patches;
+	static GLUI_StaticText* patchesCPU;
+	static GLUI_StaticText* patchesGPU;
 	static GLUI_StaticText* dist;
 	static GLUI_StaticText* alt;
 
@@ -141,7 +142,7 @@ public:
 
 	static void setStats(float fps, float frTime);
 
-	static void setPatchesNr(int patchesN);
+	static void setPatchesNr(unsigned int cpuPatches, unsigned int gpuPatches);
 
 	static void setTest(float alt, float dist);
 

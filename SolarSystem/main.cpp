@@ -1,10 +1,9 @@
 ﻿#include <iostream>
+#include "windows.h"
+#include "psapi.h"
 
 #include "Planet/Planet.h"
 #include <GL/freeglut_ext.h>
-
-#include "Perlin.h"
-#include "TestObj.h"
 #include "UI/UI.h"
 
 
@@ -15,11 +14,29 @@ extern "C" {
 
 int mainWindow, controlsWindow;
 auto lastTime = std::chrono::high_resolution_clock::now();
-float timer1 = 0;
-float frameTime = 0;
+float timer1 = 0, frameTime = 0.0f;
 
 Scene scene = Scene();
 
+
+static void updateStats()
+{
+	// frame time
+	frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTime).count() / 1000000.0;
+	lastTime = std::chrono::high_resolution_clock::now();
+
+	unsigned int cpu, gpu;
+	scene.getPatches(&cpu, &gpu);
+	UI::setPatchesNr(cpu, gpu);
+	timer1 += frameTime;
+	if (timer1 > 0.5)
+	{
+		UI::setStats(1 / frameTime, frameTime);
+		timer1 = 0;
+	}
+
+
+}
 
 static void processKeyboardPress(const unsigned char key, const int x, const int y)
 {
@@ -64,18 +81,9 @@ static void update()
 	if (glutGetWindow() != mainWindow)
 		glutSetWindow(mainWindow);
 
-	frameTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - lastTime).count() / 1000000.0;
-	lastTime = std::chrono::high_resolution_clock::now();
+	updateStats();
 
 	scene.update(frameTime);
-
-	UI::setPatchesNr(scene.getPatchesToBeSentToGPU());
-	timer1 += frameTime;
-	if(timer1 > 0.5)
-	{
-		UI::setStats(1 / frameTime, frameTime);
-		timer1 = 0;
-	}
 
 	// test code _________________________________________
 	float d = glm::length(coef_M * scene.camera.position_M + scene.camera.position_m);
@@ -87,7 +95,7 @@ static void update()
 
 int main(int argc, char** argv)
 {
-	// init parameters
+	// init opengl
 	glutInit(&argc, argv);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);

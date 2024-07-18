@@ -85,6 +85,7 @@ void Planet::update()
 {
 	properties.vertices.clear();
 	properties.currentMaxLOD = 0;
+	properties.nrPatches = 0;
 
 	//glm::vec3 tmp0 = properties.camera->position_M;
 	//glm::vec3 tmp1 = properties.camera->position_m;
@@ -216,7 +217,7 @@ void Planet::calcMaxAltitude()
 		properties.maxAlt += val;
 		val /= properties.persistence;
 	}
-	properties.maxAlt *= 2;
+	properties.maxAlt *= 1.5;
 
 	switch (properties.mode)
 	{
@@ -318,7 +319,11 @@ void Planet::setNoiseMode(int mode)
 	properties.noiseCalculated = false;
 }
 
-unsigned long Planet::getPatchesNrToBeSent()
+unsigned int Planet::getPatchesNrProcessed()
+{
+	return properties.nrPatches;
+}
+unsigned int Planet::getPatchesNrToBeSent()
 {
 	return properties.vertices.size() / 4;
 }
