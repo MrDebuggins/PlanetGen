@@ -12,3 +12,7 @@ This is a basic procedural planet generation system written in c++ using OpenGL 
   - Now we need to offset each vertex such that the camera will be in the coordinate system origin. This is done to have better precision for points that are close to the camera, so unlike traditional systems where camera moves around, in this system camera always remain in the origin and objects moves around.
   - Next Perlin Noise is generated from vertex's world coordinates. For now there are 5 layers of noise with resolution and amplitude doubled for each layer, this ratio gives a fractal feeling to the result. The linear patterns probably appear due to random values not being random enough, this will be fixed in next state. And againg for minimizing precision errors noise vector are applied to vertices after these have been offset by camera position to avoid operations on values with significant difference in exponent. 
 <br>![Could not find image](https://github.com/MrDebuggins/PlanetGen/assets/96007801/fba8d39d-f42e-43b0-9696-94fd28764145)<br>
+
+# Final look
+![perlin_variants](https://github.com/user-attachments/assets/b0390c16-342a-46b2-a577-3bfe2fe8fa3a)
+
